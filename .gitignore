@@ -1,9 +1,3 @@
-raytracer.xcodeproj/project.pbxproj
-raytracer.xcodeproj/project.xcworkspace/contents.xcworkspacedata
-raytracer.xcodeproj/project.xcworkspace/xcuserdata/sturm.xcuserdatad/UserInterfaceState.xcuserstate
-raytracer.xcodeproj/xcuserdata/sturm.xcuserdatad/xcschemes/raytracer.xcscheme
-raytracer.xcodeproj/xcuserdata/sturm.xcuserdatad/xcschemes/xcschememanagement.plist
-
 #################
 ## Visual Studio
 #################
@@ -40,6 +34,12 @@ raytracer.xcodeproj/xcuserdata/sturm.xcuserdatad/xcschemes/xcschememanagement.pl
 *.dotCover
 
 raytracer/*
+DirectXTK/*
+DXUT/*
+Firework/*
+ipch/*
+Media/*
+Debug/*
 
 ## TODO: If you have NuGet Package Restore enabled, uncomment this
 #packages/

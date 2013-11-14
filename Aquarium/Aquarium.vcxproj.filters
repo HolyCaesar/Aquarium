@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source">
+      <UniqueIdentifier>{d87b0efc-57fb-42db-8893-6d45b8036acb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Heads">
+      <UniqueIdentifier>{6ccf228c-cbe6-4186-a316-7e725f59bbd4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{505268fc-c04a-4a3b-8c92-6f0761a23097}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="GlowEffect.fx" />
+    <FxCompile Include="MotionBlurEffect.fx" />
+    <FxCompile Include="MultiTexturePresenter.fx" />
+    <FxCompile Include="SpinningFirework.fx" />
+    <FxCompile Include="SkyBox.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="GlowEffect.h" />
+    <ClInclude Include="MotionBlurEffect.h" />
+    <ClInclude Include="MultiTexturePresenter.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="SpinningFirework.h" />
+    <ClInclude Include="SkyBox.h">
+      <Filter>Heads</Filter>
+    </ClInclude>
+    <ClInclude Include="Helpers.h">
+      <Filter>Heads</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Aquarium.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="SkyBox.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Helpers.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
