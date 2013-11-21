@@ -23,6 +23,9 @@
     <FxCompile Include="SkyBox.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="Terrain.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GlowEffect.h" />
@@ -36,6 +39,9 @@
     <ClInclude Include="Helpers.h">
       <Filter>Heads</Filter>
     </ClInclude>
+    <ClInclude Include="Terrain.h">
+      <Filter>Heads</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Aquarium.cpp">
@@ -45,6 +51,9 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="Helpers.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Terrain.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
