@@ -45,6 +45,19 @@
 
 class Terrain
 {
+	struct TERRAIN_VERTEX
+	{
+		XMFLOAT4 position;
+		XMFLOAT3 normal;
+		XMFLOAT2 texcoord;
+	};
+
+	struct CONSTANT_BUFFER
+	{
+		XMMATRIX mView;
+		XMMATRIX mWorld;
+		XMMATRIX mProjection;
+	};
 public:
 	Terrain(void);
 	~Terrain(void);
@@ -54,7 +67,7 @@ public:
 	void ReCreateBuffers();
 	void LoadTextures();
 	void Render( CFirstPersonCamera *cam, ID3D11DeviceContext* pd3dImmediateContext );
-	void CreateTerrain();
+	HRESULT CreateTerrain();
 
 	float DynamicTesselationFactor;
 	float StaticTesselationFactor;
@@ -143,13 +156,16 @@ public:
 	ID3D11ShaderResourceView *m_pDepthmap_textureSRV;
 
 	ID3D11Buffer		*m_pHeightfield_vertexbuffer;
-	ID3D11Buffer		*m_pSky_vertexbuffer;
+	ID3D11Buffer		*m_pHeightfield_indexbuffer;
 
 	ID3D11InputLayout   *m_pHeightfield_inputlayout;
 	ID3D11InputLayout   *m_pTrianglestrip_inputlayout;
 
 	ID3D11VertexShader  *m_pRenderTerrainVS;
 	ID3D11PixelShader   *m_pRenderTerrainPS;
+
+	CONSTANT_BUFFER		m_CBallInOne;
+	ID3D11Buffer*		m_pCBallInOne;
 };
 
 float bilinear_interpolation( float fx, float fy, float a, float b, float c, float d );

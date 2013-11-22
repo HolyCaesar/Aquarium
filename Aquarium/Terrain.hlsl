@@ -16,8 +16,8 @@ Texture2D MainTex;
 struct VSINPUT
 {
 	float4 position : POSITION;
-	float2 texcoord : TEXCOORD;
 	float3 normal   : NORMAL;
+	float2 texcoord : TEXCOORD;
 };
 
 struct PSINPUT
@@ -48,7 +48,9 @@ PSINPUT RenderTerrainVS( VSINPUT input )
 {
 	PSINPUT output = ( PSINPUT )0;
 
-	output.position = input.position;
+	output.position = mul( input.position, mView );
+	output.position = mul( output.position, mWorld );
+	output.position = mul( output.position, mProjection );
 	output.texcoord = input.texcoord;
 	output.normal   = float3( 0, 0, 0 );
 	output.positionWS = input.position;
@@ -59,5 +61,5 @@ PSINPUT RenderTerrainVS( VSINPUT input )
 
 float4 RenderTerrainPS( PSINPUT input ) : SV_Target
 {
-	return float4( 0, 0, 0, 0 );
+	return float4( 1, 0, 0, 0 );
 }

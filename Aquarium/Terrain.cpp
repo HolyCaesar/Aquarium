@@ -41,7 +41,7 @@ Terrain::Terrain(void)
 
 	m_pWater_bump_texture = NULL;
 	m_pWater_bump_textureSRV = NULL;	
-	
+
 	m_pReflection_color_resource = NULL;
 	m_pReflection_color_resourceSRV = NULL;
 	m_pReflection_color_resourceRTV = NULL;
@@ -90,13 +90,15 @@ Terrain::Terrain(void)
 	m_pDepthmap_textureSRV = NULL;
 
 	m_pHeightfield_vertexbuffer = NULL;
-	m_pSky_vertexbuffer = NULL;
+	m_pHeightfield_indexbuffer = NULL;
 
 	m_pHeightfield_inputlayout = NULL;
 	m_pTrianglestrip_inputlayout = NULL;
 
 	m_pRenderTerrainVS = NULL;
 	m_pRenderTerrainPS = NULL;
+
+	m_pCBallInOne = NULL;
 }
 
 
@@ -112,8 +114,9 @@ HRESULT Terrain::Initialize( ID3D11Device* device )
 	const D3D11_INPUT_ELEMENT_DESC TerrainLayout[] = { "PATCH_PARAMETERS",  0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 };
 	const D3D11_INPUT_ELEMENT_DESC TriangleLayout[] = 
 	{
-		{ "POSITION",  0, DXGI_FORMAT_R32G32B32A32_FLOAT,   0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,   0, 16,  D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		{ "POSITION",  0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD",  0, DXGI_FORMAT_R16G16_FLOAT, 0, 28,  D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 	//D3DX11_PASS_DESC passDesc;
 	//effect->GetTechniqueByName("RenderHeightfield")->GetPassByIndex(0)->GetDesc(&passDesc);
@@ -128,7 +131,13 @@ HRESULT Terrain::Initialize( ID3D11Device* device )
 	pVSBlob->Release();
 	pPSBlob->Release();
 
-
+	D3D11_BUFFER_DESC bd;
+	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	bd.CPUAccessFlags = 0    ;
+	bd.ByteWidth = sizeof( CONSTANT_BUFFER );
+	V_RETURN( m_pDevice->CreateBuffer( &bd, NULL, &m_pCBallInOne ) );
+	DXUT_SetDebugName( m_pCBallInOne, "m_pCBallInOne");
 
 	CreateTerrain();
 
@@ -137,7 +146,6 @@ HRESULT Terrain::Initialize( ID3D11Device* device )
 
 void Terrain::ReCreateBuffers()
 {
-
 	D3D11_TEXTURE2D_DESC tex_desc;
 	D3D11_SHADER_RESOURCE_VIEW_DESC textureSRV_desc;
 	D3D11_DEPTH_STENCIL_VIEW_DESC DSV_desc;
@@ -472,7 +480,7 @@ void Terrain::Clean()
 	SAFE_RELEASE( m_pShadowmap_resourceDSV );
 	SAFE_RELEASE( m_pShadowmap_resourceSRV );
 
-	SAFE_RELEASE( m_pSky_vertexbuffer );
+	SAFE_RELEASE( m_pHeightfield_indexbuffer );
 	SAFE_RELEASE( m_pTrianglestrip_inputlayout );
 
 	SAFE_RELEASE( m_pHeightfield_vertexbuffer );
@@ -484,10 +492,13 @@ void Terrain::Clean()
 
 	SAFE_RELEASE( m_pRenderTerrainVS );
 	SAFE_RELEASE( m_pRenderTerrainPS );
+
+	SAFE_RELEASE( m_pCBallInOne );
 }
 
-void Terrain::CreateTerrain()
+HRESULT Terrain::CreateTerrain()
 {
+	HRESULT hr = S_OK;
 	int i,j,k,l;
 	float x,z;
 	int ix,iz;
@@ -953,30 +964,69 @@ void Terrain::CreateTerrain()
 	free(depth_shadow_map_texture_pixels);
 
 	// creating terrain vertex buffer
-	for(int i=0;i<terrain_numpatches_1d;i++)
-	{
-		for(int j=0;j<terrain_numpatches_1d;j++)
-		{
-			patches_rawdata[(i+j*terrain_numpatches_1d)*4+0]=i*terrain_geometry_scale*terrain_gridpoints/terrain_numpatches_1d;
-			patches_rawdata[(i+j*terrain_numpatches_1d)*4+1]=j*terrain_geometry_scale*terrain_gridpoints/terrain_numpatches_1d;
-			patches_rawdata[(i+j*terrain_numpatches_1d)*4+2]=terrain_geometry_scale*terrain_gridpoints/terrain_numpatches_1d;
-			patches_rawdata[(i+j*terrain_numpatches_1d)*4+3]=terrain_geometry_scale*terrain_gridpoints/terrain_numpatches_1d;
-		}
-	}
+	UINT g_dwNumIndices = terrain_gridpoints * terrain_gridpoints * 6;
+	D3D11_BUFFER_DESC ibDesc;
+    ibDesc.ByteWidth = g_dwNumIndices * sizeof( WORD );
+    ibDesc.Usage = D3D11_USAGE_DEFAULT;
+    ibDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+    ibDesc.CPUAccessFlags = 0;
+    ibDesc.MiscFlags = 0;
 
-	D3D11_BUFFER_DESC buf_desc;
-	memset(&buf_desc,0,sizeof(buf_desc));
+    WORD* pIndexData = new WORD[ g_dwNumIndices ];
+    if( !pIndexData )
+        return E_OUTOFMEMORY;
+    WORD* pIndices = pIndexData;
+    for( DWORD y = 1; y < terrain_gridpoints + 1; y++ )
+    {
+        for( DWORD x = 1; x < terrain_gridpoints + 1; x++ )
+        {
+            *pIndices++ = ( WORD )( ( y - 1 ) * ( terrain_gridpoints + 1 ) + ( x - 1 ) );
+            *pIndices++ = ( WORD )( ( y - 0 ) * ( terrain_gridpoints + 1 ) + ( x - 1 ) );
+            *pIndices++ = ( WORD )( ( y - 1 ) * ( terrain_gridpoints + 1 ) + ( x - 0 ) );
 
-	buf_desc.ByteWidth = terrain_numpatches_1d*terrain_numpatches_1d*4*sizeof(float);
-	buf_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	buf_desc.Usage = D3D11_USAGE_DEFAULT;
+            *pIndices++ = ( WORD )( ( y - 1 ) * ( terrain_gridpoints + 1 ) + ( x - 0 ) );
+            *pIndices++ = ( WORD )( ( y - 0 ) * ( terrain_gridpoints + 1 ) + ( x - 1 ) );
+            *pIndices++ = ( WORD )( ( y - 0 ) * ( terrain_gridpoints + 1 ) + ( x - 0 ) );
+        }
+    }
 
-	subresource_data.pSysMem=patches_rawdata;
-	subresource_data.SysMemPitch=0;
-	subresource_data.SysMemSlicePitch=0;
+    D3D11_SUBRESOURCE_DATA ibInitData;
+    ZeroMemory( &ibInitData, sizeof( D3D11_SUBRESOURCE_DATA ) );
+    ibInitData.pSysMem = pIndexData;
+	V_RETURN( m_pDevice->CreateBuffer( &ibDesc, &ibInitData, &m_pHeightfield_indexbuffer ) );
+    SAFE_DELETE_ARRAY( pIndexData );
 
-	result=m_pDevice->CreateBuffer(&buf_desc,&subresource_data,&m_pHeightfield_vertexbuffer);
-	free (patches_rawdata);
+    // Create a Vertex Buffer
+	UINT g_dwNumVertices = ( terrain_gridpoints + 1 ) * ( terrain_gridpoints + 1 );
+    D3D11_BUFFER_DESC vbDesc;
+    vbDesc.ByteWidth = g_dwNumVertices * sizeof( TERRAIN_VERTEX );
+    vbDesc.Usage = D3D11_USAGE_DEFAULT;
+    vbDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    vbDesc.CPUAccessFlags = 0;
+    vbDesc.MiscFlags = 0;
+
+    TERRAIN_VERTEX* pVertData = new TERRAIN_VERTEX[ g_dwNumVertices ];
+    if( !pVertData )
+        return E_OUTOFMEMORY;
+    TERRAIN_VERTEX* pVertices = pVertData;
+    for( int y = 0; y < terrain_gridpoints + 1; y++ )
+    {
+        for( int x = 0; x < terrain_gridpoints + 1; x++ )
+        {
+            ( *pVertices++ ).position = XMFLOAT4( ( ( float )x / ( float )( terrain_gridpoints + 1 - 1 ) - 0.5f ) * XM_PI,
+												  height[ y ][ x ],
+                                                ( ( float )y / ( float )( terrain_gridpoints + 1 - 1 ) - 0.5f ) * XM_PI,
+												0 );
+        }
+    }
+
+    D3D11_SUBRESOURCE_DATA vbInitData;
+    ZeroMemory( &vbInitData, sizeof( D3D11_SUBRESOURCE_DATA ) );
+    vbInitData.pSysMem = pVertData;
+    V_RETURN( m_pDevice->CreateBuffer( &vbDesc, &vbInitData, &m_pHeightfield_vertexbuffer ) );
+    SAFE_DELETE_ARRAY( pVertData );
+
+	return hr;
 }
 
 void Terrain::Render( CFirstPersonCamera *cam, ID3D11DeviceContext* pd3dImmediateContext )
@@ -985,8 +1035,19 @@ void Terrain::Render( CFirstPersonCamera *cam, ID3D11DeviceContext* pd3dImmediat
 	UINT stride = sizeof(float) * 4;
 	UINT offset = 0;
 	UINT cRT = 1;
+	pd3dImmediateContext->IASetInputLayout( m_pTrianglestrip_inputlayout );
+	pd3dImmediateContext->IASetVertexBuffers( 0, 1, &m_pHeightfield_vertexbuffer, &stride, &offset );
+	pd3dImmediateContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
+
+	m_CBallInOne.mView = cam->GetViewMatrix();
+	m_CBallInOne.mWorld = cam->GetWorldMatrix();
+	m_CBallInOne.mProjection = cam->GetProjMatrix();
+	pd3dImmediateContext->UpdateSubresource( m_pCBallInOne, 0, NULL, &m_CBallInOne, 0, 0 );
 
 	//pd3dImmediateContext->PSSetSamplers(0,1,&m_pGeneralTexSS );
+	pd3dImmediateContext->VSSetShader( m_pRenderTerrainVS, NULL, 0 );
+	pd3dImmediateContext->VSSetConstantBuffers( 0, 1, &m_pCBallInOne );
+	pd3dImmediateContext->PSSetShader( m_pRenderTerrainPS, NULL, 0 );
 	pd3dImmediateContext->PSSetShaderResources( 0, 1, &m_pHeightmap_textureSRV );
 	pd3dImmediateContext->PSSetShaderResources( 1, 1, &m_pLayerdef_textureSRV );
 	//pd3dImmediateContext->PSSetShaderResources( 1, 1, &m_pHeightmap_textureSRV );

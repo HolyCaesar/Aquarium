@@ -10,6 +10,7 @@
 
 #include "Helpers.h"
 #include "SkyBox.h"
+#include "Terrain.h"
 
 #define SUB_TEXTUREWIDTH 1440
 #define SUB_TEXTUREHEIGHT 900
@@ -22,6 +23,7 @@
 //GlowEffect									PostEffect_Glow = GlowEffect(SUB_TEXTUREWIDTH,SUB_TEXTUREHEIGHT);
 //MotionBlurEffect							PostEffect_Blur = MotionBlurEffect(SUB_TEXTUREWIDTH,SUB_TEXTUREHEIGHT);
 SkyBox g_SkyBox;
+Terrain g_Terrian;
 CFirstPersonCamera g_Camera;                // A model viewing camera
 CDXUTDialogResourceManager					DialogResourceManager; 
 CDXUTDialog									UI;
