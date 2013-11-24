@@ -35,8 +35,8 @@ struct PSINPUT
 */
 cbuffer ConstantMatrix : register( b0 )
 {
-	matrix mWorld;
 	matrix mView;
+	matrix mWorld;
 	matrix mProjection;
 };
 
@@ -47,9 +47,9 @@ cbuffer ConstantMatrix : register( b0 )
 PSINPUT RenderTerrainVS( VSINPUT input )
 {
 	PSINPUT output = ( PSINPUT )0;
-
-	output.position = mul( input.position, mView );
-	output.position = mul( output.position, mWorld );
+	input.position.w = 1;
+	output.position = mul( input.position, mWorld );
+	output.position = mul( output.position, mView );
 	output.position = mul( output.position, mProjection );
 	output.texcoord = input.texcoord;
 	output.normal   = float3( 0, 0, 0 );
@@ -59,7 +59,9 @@ PSINPUT RenderTerrainVS( VSINPUT input )
 	return output;
 }
 
+
+
 float4 RenderTerrainPS( PSINPUT input ) : SV_Target
 {
-	return float4( 1, 0, 0, 0 );
+	return float4( 0, 0, 0, 0 );
 }

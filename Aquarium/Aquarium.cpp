@@ -25,6 +25,7 @@
 SkyBox g_SkyBox;
 Terrain g_Terrian;
 CFirstPersonCamera g_Camera;                // A model viewing camera
+CModelViewerCamera g_MCamera;
 CDXUTDialogResourceManager					DialogResourceManager; 
 CDXUTDialog									UI;
 
@@ -123,11 +124,10 @@ HRESULT Initial()
 
 	// Setup Camera
 	g_Camera.SetRotateButtons( true, false, false );
-	g_Camera.SetScalers( 0.003f, 400.0f );
-	XMFLOAT3 vecEye(1562.24f, 854.291f, -1224.99f);
-	XMFLOAT3 vecAt (1562.91f, 854.113f, -1225.71f);
+	g_Camera.SetScalers( /*0.003f, 400.0f*/0.005f, 50.0f );
+	XMFLOAT3 vecEye(/*1562.24f, 854.291f, -1224.99f*/ 365.0f,  3.0f, 166.0f /*0,  3.0f, -15*/ );
+	XMFLOAT3 vecAt (/*1562.91f, 854.113f, -1225.71f*/ 330.0f,-11.0f, 259.0f /*0,  0, -15*/ );
 	g_Camera.SetViewParams( XMLoadFloat3( &vecEye ), XMLoadFloat3( &vecAt ) );
-
 
 	return hr;
 }
@@ -176,6 +176,15 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
 	assert(g_pSkyCubeMap);
 
 	g_SkyBox.Initialization( DXUTGetD3D11Device(), 50, g_pSkyCubeMap, g_pSRV_SkyCube );
+
+	// Terrain
+	g_Terrian.Initialize( DXUTGetD3D11Device() );
+
+	XMVECTORF32 vecEye = { 0.0f, 150.0f, -600.0f, 0.f };
+		XMVECTORF32 vecAt = { 0.0f, 0.0f, 0.0f, 0.f };
+		g_MCamera.SetViewParams( vecEye, vecAt );
+		g_MCamera.SetRadius( 5.0f, 1.0f, 100.0f );
+
 	return S_OK;
 }
 
@@ -192,10 +201,21 @@ HRESULT CALLBACK OnD3D11ResizedSwapChain( ID3D11Device* pd3dDevice, IDXGISwapCha
 	//UI.SetSize( 180, 600 );
 
 	float fAspectRatio = pBackBufferSurfaceDesc->Width / (FLOAT)pBackBufferSurfaceDesc->Height;
-	g_Camera.SetProjParams( 3.141592653 / 4, fAspectRatio, 100.0f, 200000.0f );
+	g_Camera.SetProjParams( 3.141592653 / 4, fAspectRatio, 0.1f, 200000.0f );
+	 XMFLOAT3 vMin = XMFLOAT3( -1000.0f, -1000.0f, -1000.0f );
+    XMFLOAT3 vMax = XMFLOAT3( 1000.0f, 1000.0f, 1000.0f );
 
+    //g_Camera.SetViewParams( &vecEye, &vecAt );
+    g_Camera.SetRotateButtons(TRUE, TRUE, TRUE);
+    g_Camera.SetScalers( 10.0f, 10.0f );
+    g_Camera.SetDrag( true );
+    g_Camera.SetEnableYAxisMovement( false );
+    g_Camera.SetClipToBoundary( TRUE, &vMin, &vMax );
+    g_Camera.FrameMove( 0 );
 	g_SkyBox.Resized( pBackBufferSurfaceDesc );
-
+	g_MCamera.SetProjParams( XM_PI / 4, fAspectRatio, 0.1f, 5000.0f );
+			g_MCamera.SetWindow(pBackBufferSurfaceDesc->Width,pBackBufferSurfaceDesc->Height );
+			g_MCamera.SetButtonMasks( MOUSE_MIDDLE_BUTTON, MOUSE_WHEEL, MOUSE_LEFT_BUTTON );
 	return S_OK;
 }
 
@@ -216,14 +236,11 @@ void CALLBACK OnFrameMove( double fTime, float fElapsedTime, void* pUserContext 
 void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext,
 								  double fTime, float fElapsedTime, void* pUserContext )
 {
-	//SpinFirework.Render( pd3dImmediateContext, fTime, fElapsedTime );
-	//PostEffect_Glow.Render( pd3dImmediateContext );
-	//PostEffect_Blur.Render( pd3dImmediateContext );
-	//MultiTexture.Render( pd3dImmediateContext );
-
-	//DXUT_BeginPerfEvent( DXUT_PERFEVENTCOLOR2, L"UI" );
-	//UI.OnRender( fElapsedTime );
-	//DXUT_EndPerfEvent();
+    float ClearColor[ 4 ] = { 0.176f, 0.196f, 0.667f, 0.0f };
+    ID3D11RenderTargetView* pRTV = DXUTGetD3D11RenderTargetView();
+    ID3D11DepthStencilView* pDSV = DXUTGetD3D11DepthStencilView();
+    pd3dImmediateContext->ClearRenderTargetView( pRTV, ClearColor );
+    pd3dImmediateContext->ClearDepthStencilView( pDSV, D3D11_CLEAR_DEPTH, 1.0, 0 );
 
 	XMMATRIX mView;
     XMMATRIX mProj;
@@ -233,7 +250,15 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
 	mWorldViewProjection = XMMatrixMultiply( mView, mProj );
 	//XMStoreFloat4x4( &mWorldViewProjection, XMMatrixTranspose( XMLoadFloat4x4( &mWorldViewProjection ) ) );
 
-	g_SkyBox.RenderSkyBox( &mWorldViewProjection, pd3dImmediateContext );
+	//g_SkyBox.RenderSkyBox( &mWorldViewProjection, pd3dImmediateContext );
+	XMMATRIX rotate =  XMMatrixRotationY(fTime);
+	g_Terrian.Render( &g_MCamera, pd3dImmediateContext,& rotate );
+
+
+	
+	//DXUT_BeginPerfEvent( DXUT_PERFEVENTCOLOR2, L"UI" );
+	//UI.OnRender( fElapsedTime );
+	//DXUT_EndPerfEvent();
 }
 
 
@@ -276,8 +301,8 @@ LRESULT CALLBACK MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
 		return 0;
 
 	// Pass all windows messages to camera so it can respond to user input
-    g_Camera.HandleMessages( hWnd, uMsg, wParam, lParam );
-
+    g_MCamera.HandleMessages( hWnd, uMsg, wParam, lParam );
+	//g_Camera.HandleMessages( hWnd, uMsg, wParam, lParam );
 	return 0;
 }
 

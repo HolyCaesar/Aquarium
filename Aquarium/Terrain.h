@@ -66,7 +66,7 @@ public:
 	void Clean();
 	void ReCreateBuffers();
 	void LoadTextures();
-	void Render( CFirstPersonCamera *cam, ID3D11DeviceContext* pd3dImmediateContext );
+	void Render( CModelViewerCamera *cam, ID3D11DeviceContext* pd3dImmediateContext, XMMATRIX* pRotate );
 	HRESULT CreateTerrain();
 
 	float DynamicTesselationFactor;
@@ -75,8 +75,29 @@ public:
 	void SetupReflectionView( CFirstPersonCamera *cam );
 	void SetupRefractionView( CFirstPersonCamera *cam );
 	void SetupLightView( CFirstPersonCamera *cam );
+	HRESULT CreateRenderState( ID3D11Device* device ); 
 	float BackbufferWidth;
 	float BackbufferHeight;
+
+	/*
+	* Getters and Setters
+	*/
+	ID3D11InputLayout* GetTerrainInputLayout()
+	{
+		return m_pHeightfield_inputlayout;
+	}
+	ID3D11Buffer* GetTerrainVertexBuffer()
+	{
+		return m_pHeightfield_vertexbuffer;
+	}
+	ID3D11Buffer* GetTerrainIndexBuffer()
+	{
+		return m_pHeightfield_indexbuffer;
+	}
+	unsigned int GetIndexCount()
+	{
+		return m_iIndexCount;
+	}
 
 	UINT MultiSampleCount;
 	UINT MultiSampleQuality;
@@ -140,6 +161,7 @@ public:
 	ID3D11ShaderResourceView *m_pMain_color_resource_resolvedSRV;
 
 	ID3D11Device* m_pDevice;
+	ID3D11RasterizerState *m_pRasterizerState;
 
 	float				height[ terrain_gridpoints + 1 ][ terrain_gridpoints + 1 ];
 	XMFLOAT3			normal[ terrain_gridpoints + 1 ][ terrain_gridpoints + 1 ];
@@ -157,6 +179,7 @@ public:
 
 	ID3D11Buffer		*m_pHeightfield_vertexbuffer;
 	ID3D11Buffer		*m_pHeightfield_indexbuffer;
+	unsigned int         m_iIndexCount;
 
 	ID3D11InputLayout   *m_pHeightfield_inputlayout;
 	ID3D11InputLayout   *m_pTrianglestrip_inputlayout;
