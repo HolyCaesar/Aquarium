@@ -76,51 +76,7 @@ HRESULT Initial()
 	//iY += 24;
 	//swprintf_s( sz, 100, L"Glow factor: %0.2f", PostEffect_Glow.m_CBperResize.glow_factor );
 	//UI.AddStatic( IDC_GLOWFACTOR_STATIC, sz, 0, iY, 170, 23 );
-	//UI.AddSlider( IDC_GLOWFACTOR_SLIDER, 0, iY += 26, 170, 23, 0, 1000, 450 );
-
-	//swprintf_s( sz, 100, L"Blend factor: %0.2f", PostEffect_Glow.m_CBperResize.blend_factor );
-	//UI.AddStatic( IDC_GLOWBLENDFACTOR_STATIC, sz, 0,  iY += 26,170, 23 );
-	//UI.AddSlider( IDC_GLOWBLENDFACTOR_SLIDER, 0, iY += 26, 170, 23, 0, 300, 100 );
-
-	//swprintf_s( sz, 100, L"Blur factor: %0.2f", PostEffect_Blur.m_CBperResize.blur_factor );
-	//UI.AddStatic( IDC_BLURFACTOR_STATIC, sz, 0,  iY += 26,170, 23 );
-	//UI.AddSlider( IDC_BLURFACTOR_SLIDER, 0, iY += 26, 170, 23, 800, 1000, 970 );
-
-
-	//swprintf_s( sz, 100, L"Fire Interval: %0.2f", SpinFirework.m_CBallInOne.fFireInterval );
-	//UI.AddStatic( IDC_FIREINTERVAL_STATIC, sz, 0,  iY += 26,170, 23 );
-	//UI.AddSlider( IDC_FIREINTERVAL_SLIDER, 0, iY += 26, 170, 23, 5, 500, 100 );
-
-	//swprintf_s( sz, 100, L"Num of Firefly: %i", SpinFirework.m_CBallInOne.iNumFirefly1s );
-	//UI.AddStatic( IDC_NUM_FLY1_STATIC, sz, 0,  iY += 26,170, 23 );
-	//UI.AddSlider( IDC_NUM_FLY1_SLIDER, 0, iY += 26, 170, 23, 1, 93, 60 );
-	//
-	//swprintf_s( sz, 100, L"Max SubDetonate: %0.2f", SpinFirework.m_CBallInOne.fMaxSubDetonates );
-	//UI.AddStatic( IDC_MAX_SUBDETONATE_STATIC, sz, 0,  iY += 26,170, 23 );
-	//UI.AddSlider( IDC_MAX_SUBDETONATE_SLIDER, 0, iY += 26, 170, 23, 1, 93, 40 );
-
-	//swprintf_s( sz, 100, L"Detonate Life: %0.2fs", SpinFirework.m_CBallInOne.fDetonateLife );
-	//UI.AddStatic( IDC_DETONATE_LIFE_STATIC, sz, 0,  iY += 26,170, 23 );
-	//UI.AddSlider( IDC_DETONATE_LIFE_SLIDER, 0, iY += 26, 170, 23, 10, 100, 35 );
-
-	//swprintf_s( sz, 100, L"Firefly Life: %0.2fs", SpinFirework.m_CBallInOne.fFirefly1Life );
-	//UI.AddStatic( IDC_FIREFLY_LIFE_STATIC, sz, 0,  iY += 26,170, 23 );
-	//UI.AddSlider( IDC_FIREFLY_LIFE_SLIDER, 0, iY += 26, 170, 23, 10, 100, 35 );
-
-	//swprintf_s( sz, 100, L"SubDetonate Life: %0.2fs", SpinFirework.m_CBallInOne.fSubDetonateLife );
-	//UI.AddStatic( IDC_SDETONATE_LIFE_STATIC, sz, 0,  iY += 26,170, 23 );
-	//UI.AddSlider( IDC_SDETONATE_LIFE_SLIDER, 0, iY += 26, 170, 23, 10, 60, 15 );
-
-	//swprintf_s( sz, 100, L"Firefly2 Life: %0.2fs", SpinFirework.m_CBallInOne.fFirefly2Life );
-	//UI.AddStatic( IDC_FIREFLY2_LIFE_STATIC, sz, 0,  iY += 26,170, 23 );
-	//UI.AddSlider( IDC_FIREFLY2_LIFE_SLIDER, 0, iY += 26, 170, 23, 10, 60, 25 );
-
-
-
-	//V_RETURN( MultiTexture.Initial() );
-	//V_RETURN( SpinFirework.Initial() );
-	//V_RETURN( PostEffect_Glow.Initial() );
-	//V_RETURN( PostEffect_Blur.Initial() );
+	//UI.AddSlider( IDC_GLOWFACTOR_SLIDER, 0, iY += 26, 170, 23, 0, 1000, 450 )£»
 
 	// Setup Camera
 	g_Camera.SetRotateButtons( true, false, false );
@@ -226,6 +182,7 @@ HRESULT CALLBACK OnD3D11ResizedSwapChain( ID3D11Device* pd3dDevice, IDXGISwapCha
 void CALLBACK OnFrameMove( double fTime, float fElapsedTime, void* pUserContext )
 {
 	g_Camera.FrameMove( fElapsedTime );
+	g_MCamera.FrameMove( fElapsedTime );
 	//SpinFirework.Update( fElapsedTime );
 }
 

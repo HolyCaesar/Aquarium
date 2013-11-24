@@ -63,5 +63,5 @@ PSINPUT RenderTerrainVS( VSINPUT input )
 
 float4 RenderTerrainPS( PSINPUT input ) : SV_Target
 {
-	return float4( 0, 0, 0, 0 );
+	return float4( 1, 1, 1, 0 );
 }
