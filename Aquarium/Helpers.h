@@ -8,6 +8,11 @@
 #include <d3d11.h>
 #include <DirectXMath.h>
 
+// System headers
+#include <stdio.h>
+#include <io.h>
+#include <fcntl.h>
+
 #include <DXUT.h>
 #include <DXUTmisc.h>
 #include <SDKmisc.h>

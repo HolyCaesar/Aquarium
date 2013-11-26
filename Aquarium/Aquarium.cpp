@@ -65,6 +65,22 @@ HRESULT Initial()
 { 
 	HRESULT hr = S_OK;
 
+	if( AllocConsole() )
+	{
+		HANDLE handle_out = GetStdHandle(STD_OUTPUT_HANDLE);
+		int hCrt = _open_osfhandle((long) handle_out, _O_TEXT);
+		FILE* hf_out = _fdopen(hCrt, "w");
+		setvbuf(hf_out, NULL, _IONBF, 1);
+		*stdout = *hf_out;
+
+		HANDLE handle_in = GetStdHandle(STD_INPUT_HANDLE);
+		hCrt = _open_osfhandle((long) handle_in, _O_TEXT);
+		FILE* hf_in = _fdopen(hCrt, "r");
+		setvbuf(hf_in, NULL, _IONBF, 128);
+		*stdin = *hf_in;
+	}
+
+
 	//UI.Init( &DialogResourceManager );
 	////UI.SetFont
 	//UI.SetCallback( OnGUIEvent ); int iY = 10;
@@ -80,7 +96,7 @@ HRESULT Initial()
 
 	// Setup Camera
 	g_Camera.SetRotateButtons( true, false, false );
-	g_Camera.SetScalers( /*0.003f, 400.0f*/0.005f, 50.0f );
+	g_Camera.SetScalers( /*0.003f, 400.0f*/0.005f, 150.0f );
 	XMFLOAT3 vecEye(/*1562.24f, 854.291f, -1224.99f*/ 365.0f,  3.0f, 166.0f /*0,  3.0f, -15*/ );
 	XMFLOAT3 vecAt (/*1562.91f, 854.113f, -1225.71f*/ 330.0f,-11.0f, 259.0f /*0,  0, -15*/ );
 	g_Camera.SetViewParams( XMLoadFloat3( &vecEye ), XMLoadFloat3( &vecAt ) );
@@ -93,7 +109,7 @@ HRESULT Initial()
 // Reject any D3D11 devices that aren't acceptable by returning false
 //--------------------------------------------------------------------------------------
 bool CALLBACK IsD3D11DeviceAcceptable( const CD3D11EnumAdapterInfo *AdapterInfo, UINT Output, const CD3D11EnumDeviceInfo *DeviceInfo,
-									   DXGI_FORMAT BackBufferFormat, bool bWindowed, void* pUserContext )
+									  DXGI_FORMAT BackBufferFormat, bool bWindowed, void* pUserContext )
 {
 	return true;
 }
@@ -113,7 +129,7 @@ bool CALLBACK ModifyDeviceSettings( DXUTDeviceSettings* pDeviceSettings, void* p
 // Create any D3D11 resources that aren't dependant on the back buffer
 //--------------------------------------------------------------------------------------
 HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFACE_DESC* pBackBufferSurfaceDesc,
-									  void* pUserContext )
+									 void* pUserContext )
 {
 	HRESULT hr = S_OK;
 	//ID3D11DeviceContext* pd3dImmediateContext = DXUTGetD3D11DeviceContext();
@@ -122,8 +138,8 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
 	// Sky box
 	ID3D11Texture2D* g_pSkyCubeMap = NULL;
 	ID3D11ShaderResourceView* g_pSRV_SkyCube = NULL;
-    WCHAR strPath[MAX_PATH];
-    DXUTFindDXSDKMediaFileCch(strPath, MAX_PATH, L"misc\\sky_cube.dds");
+	WCHAR strPath[MAX_PATH];
+	DXUTFindDXSDKMediaFileCch(strPath, MAX_PATH, L"misc\\sky_cube.dds");
 	ID3D11Device* test = DXUTGetD3D11Device();
 	DXUTCreateShaderResourceViewFromFile( DXUTGetD3D11Device(), strPath, &g_pSRV_SkyCube );
 	assert(g_pSRV_SkyCube);
@@ -137,9 +153,9 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
 	g_Terrian.Initialize( DXUTGetD3D11Device() );
 
 	XMVECTORF32 vecEye = { 0.0f, 150.0f, -600.0f, 0.f };
-		XMVECTORF32 vecAt = { 0.0f, 0.0f, 0.0f, 0.f };
-		g_MCamera.SetViewParams( vecEye, vecAt );
-		g_MCamera.SetRadius( 5.0f, 1.0f, 100.0f );
+	XMVECTORF32 vecAt = { 0.0f, 0.0f, 0.0f, 0.f };
+	g_MCamera.SetViewParams( vecEye, vecAt );
+	g_MCamera.SetRadius( 5.0f, 1.0f, 200.0f );
 
 	return S_OK;
 }
@@ -149,7 +165,7 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
 // Create any D3D11 resources that depend on the back buffer
 //--------------------------------------------------------------------------------------
 HRESULT CALLBACK OnD3D11ResizedSwapChain( ID3D11Device* pd3dDevice, IDXGISwapChain* pSwapChain,
-										  const DXGI_SURFACE_DESC* pBackBufferSurfaceDesc, void* pUserContext )
+										 const DXGI_SURFACE_DESC* pBackBufferSurfaceDesc, void* pUserContext )
 {
 	HRESULT hr;
 	//V_RETURN( DialogResourceManager.OnD3D11ResizedSwapChain( pd3dDevice, pBackBufferSurfaceDesc ));
@@ -158,20 +174,20 @@ HRESULT CALLBACK OnD3D11ResizedSwapChain( ID3D11Device* pd3dDevice, IDXGISwapCha
 
 	float fAspectRatio = pBackBufferSurfaceDesc->Width / (FLOAT)pBackBufferSurfaceDesc->Height;
 	g_Camera.SetProjParams( 3.141592653 / 4, fAspectRatio, 0.1f, 200000.0f );
-	 XMFLOAT3 vMin = XMFLOAT3( -1000.0f, -1000.0f, -1000.0f );
-    XMFLOAT3 vMax = XMFLOAT3( 1000.0f, 1000.0f, 1000.0f );
+	XMFLOAT3 vMin = XMFLOAT3( -1000.0f, -1000.0f, -1000.0f );
+	XMFLOAT3 vMax = XMFLOAT3( 1000.0f, 1000.0f, 1000.0f );
 
-    //g_Camera.SetViewParams( &vecEye, &vecAt );
-    g_Camera.SetRotateButtons(TRUE, TRUE, TRUE);
-    g_Camera.SetScalers( 10.0f, 10.0f );
-    g_Camera.SetDrag( true );
-    g_Camera.SetEnableYAxisMovement( false );
-    g_Camera.SetClipToBoundary( TRUE, &vMin, &vMax );
-    g_Camera.FrameMove( 0 );
+	//g_Camera.SetViewParams( &vecEye, &vecAt );
+	g_Camera.SetRotateButtons(TRUE, TRUE, TRUE);
+	g_Camera.SetScalers( 10.0f, 10.0f );
+	g_Camera.SetDrag( true );
+	g_Camera.SetEnableYAxisMovement( false );
+	g_Camera.SetClipToBoundary( TRUE, &vMin, &vMax );
+	g_Camera.FrameMove( 0 );
 	g_SkyBox.Resized( pBackBufferSurfaceDesc );
 	g_MCamera.SetProjParams( XM_PI / 4, fAspectRatio, 0.1f, 5000.0f );
-			g_MCamera.SetWindow(pBackBufferSurfaceDesc->Width,pBackBufferSurfaceDesc->Height );
-			g_MCamera.SetButtonMasks( MOUSE_MIDDLE_BUTTON, MOUSE_WHEEL, MOUSE_LEFT_BUTTON );
+	g_MCamera.SetWindow(pBackBufferSurfaceDesc->Width,pBackBufferSurfaceDesc->Height );
+	g_MCamera.SetButtonMasks( MOUSE_MIDDLE_BUTTON, MOUSE_WHEEL, MOUSE_LEFT_BUTTON );
 	return S_OK;
 }
 
@@ -191,16 +207,16 @@ void CALLBACK OnFrameMove( double fTime, float fElapsedTime, void* pUserContext 
 // Render the scene using the D3D11 device
 //--------------------------------------------------------------------------------------
 void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext,
-								  double fTime, float fElapsedTime, void* pUserContext )
+								 double fTime, float fElapsedTime, void* pUserContext )
 {
-    float ClearColor[ 4 ] = { 0.176f, 0.196f, 0.667f, 0.0f };
-    ID3D11RenderTargetView* pRTV = DXUTGetD3D11RenderTargetView();
-    ID3D11DepthStencilView* pDSV = DXUTGetD3D11DepthStencilView();
-    pd3dImmediateContext->ClearRenderTargetView( pRTV, ClearColor );
-    pd3dImmediateContext->ClearDepthStencilView( pDSV, D3D11_CLEAR_DEPTH, 1.0, 0 );
+	float ClearColor[ 4 ] = { 0.176f, 0.196f, 0.667f, 0.0f };
+	ID3D11RenderTargetView* pRTV = DXUTGetD3D11RenderTargetView();
+	ID3D11DepthStencilView* pDSV = DXUTGetD3D11DepthStencilView();
+	pd3dImmediateContext->ClearRenderTargetView( pRTV, ClearColor );
+	pd3dImmediateContext->ClearDepthStencilView( pDSV, D3D11_CLEAR_DEPTH, 1.0, 0 );
 
 	XMMATRIX mView;
-    XMMATRIX mProj;
+	XMMATRIX mProj;
 	XMMATRIX mWorldViewProjection;
 	mView = g_Camera.GetViewMatrix();
 	mProj = g_Camera.GetProjMatrix();
@@ -212,7 +228,7 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
 	g_Terrian.Render( &g_MCamera, pd3dImmediateContext,& rotate );
 
 
-	
+
 	//DXUT_BeginPerfEvent( DXUT_PERFEVENTCOLOR2, L"UI" );
 	//UI.OnRender( fElapsedTime );
 	//DXUT_EndPerfEvent();
@@ -238,6 +254,7 @@ void CALLBACK OnD3D11DestroyDevice( void* pUserContext )
 	DialogResourceManager.OnD3D11DestroyDevice();
 	DXUTGetGlobalResourceCache().OnDestroyDevice();
 	g_SkyBox.OnD3D11DestroyDevice();
+	g_Terrian.OnD3D11DestroyDevice();
 }
 
 
@@ -245,20 +262,20 @@ void CALLBACK OnD3D11DestroyDevice( void* pUserContext )
 // Handle messages to the application
 //--------------------------------------------------------------------------------------
 LRESULT CALLBACK MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
-						  bool* pbNoFurtherProcessing, void* pUserContext )
+						 bool* pbNoFurtherProcessing, void* pUserContext )
 {
-	 // Pass messages to dialog resource manager calls so GUI state is updated correctly
+	// Pass messages to dialog resource manager calls so GUI state is updated correctly
 	*pbNoFurtherProcessing = DialogResourceManager.MsgProc( hWnd, uMsg, wParam, lParam );
 	if( *pbNoFurtherProcessing )
 		return 0;
 
-	 // Give the dialogs a chance to handle the message first
+	// Give the dialogs a chance to handle the message first
 	*pbNoFurtherProcessing = UI.MsgProc( hWnd, uMsg, wParam, lParam );
 	if( *pbNoFurtherProcessing )
 		return 0;
 
 	// Pass all windows messages to camera so it can respond to user input
-    g_MCamera.HandleMessages( hWnd, uMsg, wParam, lParam );
+	g_MCamera.HandleMessages( hWnd, uMsg, wParam, lParam );
 	//g_Camera.HandleMessages( hWnd, uMsg, wParam, lParam );
 	return 0;
 }
@@ -276,8 +293,8 @@ void CALLBACK OnKeyboard( UINT nChar, bool bKeyDown, bool bAltDown, void* pUserC
 // Handle mouse button presses
 //--------------------------------------------------------------------------------------
 void CALLBACK OnMouse( bool bLeftButtonDown, bool bRightButtonDown, bool bMiddleButtonDown,
-					   bool bSideButton1Down, bool bSideButton2Down, int nMouseWheelDelta,
-					   int xPos, int yPos, void* pUserContext )
+					  bool bSideButton1Down, bool bSideButton2Down, int nMouseWheelDelta,
+					  int xPos, int yPos, void* pUserContext )
 {
 }
 
@@ -298,97 +315,6 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 	//			UI.GetStatic( IDC_GLOWFACTOR_STATIC )->SetText( sz );
 	//			break;
 	//		}
-
-	//	case IDC_BLURFACTOR_SLIDER:
-	//		{
-	//			WCHAR sz[100];
-	//			float blurFactor= ( float )( UI.GetSlider( IDC_BLURFACTOR_SLIDER )->GetValue() * 0.001f );
-	//			swprintf_s( sz, 100, L"Blur Factor: %0.4f", blurFactor);
-	//			PostEffect_Blur.m_CBperResize.blur_factor = blurFactor;
-	//			UI.GetStatic( IDC_BLURFACTOR_STATIC )->SetText( sz );
-	//			break;
-	//		}
-
-	//	case IDC_GLOWBLENDFACTOR_SLIDER:
-	//		{
-	//			WCHAR sz[100];
-	//			float blendFactor= ( float )( UI.GetSlider( IDC_GLOWBLENDFACTOR_SLIDER )->GetValue() * 0.01f );
-	//			swprintf_s( sz, 100, L"Blend Factor: %0.2f", blendFactor);
-	//			PostEffect_Glow.m_CBperResize.blend_factor = blendFactor;
-	//			UI.GetStatic( IDC_GLOWBLENDFACTOR_STATIC )->SetText( sz );
-	//			break;
-	//		}
-
-	//	case IDC_FIREINTERVAL_SLIDER:
-	//		{
-	//			WCHAR sz[100];
-	//			float fireInterval= ( float )( UI.GetSlider( IDC_FIREINTERVAL_SLIDER )->GetValue() * 0.01f );
-	//			swprintf_s( sz, 100, L"Fire Interval: %0.2f", fireInterval);
-	//			SpinFirework.m_CBallInOne.fFireInterval = fireInterval;
-	//			UI.GetStatic( IDC_FIREINTERVAL_STATIC )->SetText( sz );
-	//			break;
-	//		}
-
-	//	case IDC_NUM_FLY1_SLIDER:
-	//		{
-	//			WCHAR sz[100];
-	//			int numOfFirefly= UI.GetSlider( IDC_NUM_FLY1_SLIDER )->GetValue();
-	//			swprintf_s( sz, 100, L"Num Firefly: %i", numOfFirefly);
-	//			SpinFirework.m_CBallInOne.iNumFirefly1s = numOfFirefly;
-	//			UI.GetStatic( IDC_NUM_FLY1_STATIC )->SetText( sz );
-	//			break;
-	//		}
-
-	//	case IDC_MAX_SUBDETONATE_SLIDER:
-	//		{
-	//			WCHAR sz[100];
-	//			float maxSubdetonate= ( float )( UI.GetSlider( IDC_MAX_SUBDETONATE_SLIDER )->GetValue() );
-	//			swprintf_s( sz, 100, L"Max SubDetonate: %0.2f", maxSubdetonate);
-	//			SpinFirework.m_CBallInOne.fMaxSubDetonates = maxSubdetonate;
-	//			UI.GetStatic( IDC_MAX_SUBDETONATE_STATIC )->SetText( sz );
-	//			break;
-	//		}
-
-	//	case IDC_DETONATE_LIFE_SLIDER:
-	//		{
-	//			WCHAR sz[100];
-	//			float lifeOfDetonate= ( float )( UI.GetSlider( IDC_DETONATE_LIFE_SLIDER )->GetValue() * 0.1f );
-	//			swprintf_s( sz, 100, L"Detonate Life: %0.2fs", lifeOfDetonate);
-	//			SpinFirework.m_CBallInOne.fDetonateLife = lifeOfDetonate;
-	//			UI.GetStatic( IDC_DETONATE_LIFE_STATIC )->SetText( sz );
-	//			break;
-	//		}
-
-	//	case IDC_FIREFLY_LIFE_SLIDER:
-	//		{
-	//			WCHAR sz[100];
-	//			float lifeOfFirefly= ( float )( UI.GetSlider( IDC_FIREFLY_LIFE_SLIDER )->GetValue() *0.1f );
-	//			swprintf_s( sz, 100, L"Firefly Life: %0.2fs", lifeOfFirefly);
-	//			SpinFirework.m_CBallInOne.fFirefly1Life = lifeOfFirefly;
-	//			UI.GetStatic( IDC_FIREFLY_LIFE_STATIC )->SetText( sz );
-	//			break;
-	//		}
-
-	//	case IDC_FIREFLY2_LIFE_SLIDER:
-	//		{
-	//			WCHAR sz[100];
-	//			float lifeOfFirefly= ( float )( UI.GetSlider( IDC_FIREFLY2_LIFE_SLIDER )->GetValue() *0.1f );
-	//			swprintf_s( sz, 100, L"Firefly2 Life: %0.2fs", lifeOfFirefly);
-	//			SpinFirework.m_CBallInOne.fFirefly2Life = lifeOfFirefly;
-	//			UI.GetStatic( IDC_FIREFLY2_LIFE_STATIC )->SetText( sz );
-	//			break;
-	//		}
-
-	//	case IDC_SDETONATE_LIFE_SLIDER:
-	//		{
-	//			WCHAR sz[100];
-	//			float lifeOfSubDetonate= ( float )( UI.GetSlider( IDC_SDETONATE_LIFE_SLIDER )->GetValue() *0.1f );
-	//			swprintf_s( sz, 100, L"SubDetonate Life: %0.2fs", lifeOfSubDetonate);
-	//			SpinFirework.m_CBallInOne.fSubDetonateLife = lifeOfSubDetonate;
-	//			UI.GetStatic( IDC_SDETONATE_LIFE_STATIC )->SetText( sz );
-	//			break;
-	//		}
-	//}
 
 }
 
@@ -435,9 +361,9 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdL
 
 	DXUTInit( true, true, NULL ); // Parse the command line, show msgboxes on error, no extra command line params
 	DXUTSetCursorSettings( true, true ); // Show the cursor and clip it when in full screen
-	
+
 	Initial();
-	
+
 	DXUTCreateWindow( L"Ocean Animation" );
 
 	// Only require 10-level hardware

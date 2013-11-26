@@ -1,7 +1,4 @@
 #include "Terrain.h"
-#include <stdio.h>
-#include <io.h>
-#include <fcntl.h>
 
 int gp_wrap( int a )
 {
@@ -18,31 +15,31 @@ int gp_wrap( int a )
 
 Terrain::Terrain(void)
 {
-	m_pRock_bump_texture = NULL;
+	//m_pRock_bump_texture = NULL;
 	m_pRock_bump_textureSRV = NULL;
 
-	m_pRock_microbump_texture = NULL;
+	//m_pRock_microbump_texture = NULL;
 	m_pRock_microbump_textureSRV = NULL;
 
-	m_pRock_diffuse_texture = NULL;
+	//m_pRock_diffuse_texture = NULL;
 	m_pRock_diffuse_textureSRV = NULL;	
 
-	m_pSand_bump_texture = NULL;
+	//m_pSand_bump_texture = NULL;
 	m_pSand_bump_textureSRV = NULL;
 
-	m_pSand_microbump_texture = NULL;
+	//m_pSand_microbump_texture = NULL;
 	m_pSand_microbump_textureSRV = NULL;
 
-	m_pSand_diffuse_texture = NULL;
+	//m_pSand_diffuse_texture = NULL;
 	m_pSand_diffuse_textureSRV = NULL;	
 
-	m_pGrass_diffuse_texture = NULL;
+	//m_pGrass_diffuse_texture = NULL;
 	m_pGrass_diffuse_textureSRV = NULL;	
 
-	m_pSlope_diffuse_texture = NULL;
+	//m_pSlope_diffuse_texture = NULL;
 	m_pSlope_diffuse_textureSRV = NULL;	
 
-	m_pWater_bump_texture = NULL;
+	//m_pWater_bump_texture = NULL;
 	m_pWater_bump_textureSRV = NULL;	
 
 	m_pReflection_color_resource = NULL;
@@ -77,11 +74,12 @@ Terrain::Terrain(void)
 	m_pMain_color_resource_resolvedSRV = NULL;
 
 	m_pDevice = NULL;
+	m_pRasterizerState = NULL;
 
-	height[ terrain_gridpoints + 1 ][ terrain_gridpoints + 1 ];
-	normal[ terrain_gridpoints + 1 ][ terrain_gridpoints + 1 ];
-	tangent[ terrain_gridpoints + 1 ][ terrain_gridpoints + 1 ];
-	binormal[ terrain_gridpoints + 1 ][ terrain_gridpoints + 1 ];
+	//height[ terrain_gridpoints + 1 ][ terrain_gridpoints + 1 ];
+	//normal[ terrain_gridpoints + 1 ][ terrain_gridpoints + 1 ];
+	//tangent[ terrain_gridpoints + 1 ][ terrain_gridpoints + 1 ];
+	//binormal[ terrain_gridpoints + 1 ][ terrain_gridpoints + 1 ];
 
 	m_pHeightmap_texture = NULL;
 	m_pHeightmap_textureSRV = NULL;
@@ -104,9 +102,8 @@ Terrain::Terrain(void)
 	m_pCBallInOne = NULL;
 	m_iIndexCount = 0;
 
-	m_pRasterizerState = NULL;
+	m_pGeneralTexSS = NULL;
 }
-
 
 Terrain::~Terrain(void)
 {
@@ -117,7 +114,7 @@ HRESULT Terrain::CreateRenderState( ID3D11Device* device )
 	HRESULT hr = S_OK;
 
 	D3D11_RASTERIZER_DESC rasterizerState;
-	rasterizerState.FillMode = /*D3D11_FILL_SOLID*/D3D11_FILL_WIREFRAME;
+	rasterizerState.FillMode = D3D11_FILL_SOLID /*D3D11_FILL_WIREFRAME*/;
 	rasterizerState.CullMode = D3D11_CULL_NONE;
 	rasterizerState.FrontCounterClockwise = false;
 	rasterizerState.DepthBias = false;
@@ -166,8 +163,9 @@ HRESULT Terrain::Initialize( ID3D11Device* device )
 	V_RETURN( m_pDevice->CreateBuffer( &bd, NULL, &m_pCBallInOne ) );
 	DXUT_SetDebugName( m_pCBallInOne, "m_pCBallInOne");
 
-	CreateTerrain();
-	CreateRenderState( device );
+	hr = CreateTerrain();
+	hr = CreateRenderState( device );
+	hr = LoadTextures();
 
 	return hr;
 }
@@ -441,40 +439,39 @@ void Terrain::ReCreateBuffers()
 
 }
 
-void Terrain::Clean()
+void Terrain::OnD3D11DestroyDevice()
 {
 	SAFE_RELEASE( m_pHeightmap_texture );
 	SAFE_RELEASE( m_pHeightmap_textureSRV );
 
-	SAFE_RELEASE( m_pRock_bump_texture );
+	//SAFE_RELEASE( m_pRock_bump_texture );
 	SAFE_RELEASE( m_pRock_bump_textureSRV );
 
-	SAFE_RELEASE( m_pRock_microbump_texture );
+	//SAFE_RELEASE( m_pRock_microbump_texture );
 	SAFE_RELEASE( m_pRock_microbump_textureSRV );
 
-	SAFE_RELEASE( m_pRock_diffuse_texture );
+	//SAFE_RELEASE( m_pRock_diffuse_texture );
 	SAFE_RELEASE( m_pRock_diffuse_textureSRV );
 
-
-	SAFE_RELEASE( m_pSand_bump_texture );
+	//SAFE_RELEASE( m_pSand_bump_texture );
 	SAFE_RELEASE( m_pSand_bump_textureSRV );
 
-	SAFE_RELEASE( m_pSand_microbump_texture );
+	//SAFE_RELEASE( m_pSand_microbump_texture );
 	SAFE_RELEASE( m_pSand_microbump_textureSRV );
 
-	SAFE_RELEASE( m_pSand_diffuse_texture );
+	//SAFE_RELEASE( m_pSand_diffuse_texture );
 	SAFE_RELEASE( m_pSand_diffuse_textureSRV );
 
-	SAFE_RELEASE( m_pSlope_diffuse_texture );
+	//SAFE_RELEASE( m_pSlope_diffuse_texture );
 	SAFE_RELEASE( m_pSlope_diffuse_textureSRV );
 
-	SAFE_RELEASE( m_pGrass_diffuse_texture );
+	//SAFE_RELEASE( m_pGrass_diffuse_texture );
 	SAFE_RELEASE( m_pGrass_diffuse_textureSRV );
 
 	SAFE_RELEASE( m_pLayerdef_texture );
 	SAFE_RELEASE( m_pLayerdef_textureSRV );
 
-	SAFE_RELEASE( m_pWater_bump_texture );
+	//SAFE_RELEASE( m_pWater_bump_texture );
 	SAFE_RELEASE( m_pWater_bump_textureSRV );
 
 	SAFE_RELEASE( m_pDepthmap_texture );
@@ -523,6 +520,8 @@ void Terrain::Clean()
 
 	SAFE_RELEASE( m_pCBallInOne );
 	SAFE_RELEASE( m_pRasterizerState );
+
+	SAFE_RELEASE( m_pGeneralTexSS );
 }
 
 HRESULT Terrain::CreateTerrain()
@@ -1001,22 +1000,6 @@ HRESULT Terrain::CreateTerrain()
 	ibDesc.CPUAccessFlags = 0;
 	ibDesc.MiscFlags = 0;
 
-	if( AllocConsole() )
-	{
-		HANDLE handle_out = GetStdHandle(STD_OUTPUT_HANDLE);
-		int hCrt = _open_osfhandle((long) handle_out, _O_TEXT);
-		FILE* hf_out = _fdopen(hCrt, "w");
-		setvbuf(hf_out, NULL, _IONBF, 1);
-		*stdout = *hf_out;
-
-		HANDLE handle_in = GetStdHandle(STD_INPUT_HANDLE);
-		hCrt = _open_osfhandle((long) handle_in, _O_TEXT);
-		FILE* hf_in = _fdopen(hCrt, "r");
-		setvbuf(hf_in, NULL, _IONBF, 128);
-		*stdin = *hf_in;
-	}
-
-
 	unsigned long* pIndexData = new unsigned long[ g_dwNumIndices ];
 	if( !pIndexData )
 		return E_OUTOFMEMORY;
@@ -1055,6 +1038,12 @@ HRESULT Terrain::CreateTerrain()
 	if( !pVertData )
 		return E_OUTOFMEMORY;
 	TERRAIN_VERTEX* pVertices = pVertData;
+	float texInterval = 1.0 / ( terrain_gridpoints + 1 );
+
+	// For text
+	float highMax = -10000, highMin = 10000;
+
+
 	for( int y = 0; y < terrain_gridpoints + 1; y++ )
 	{
 		for( int x = 0; x < terrain_gridpoints + 1; x++ )
@@ -1066,10 +1055,21 @@ HRESULT Terrain::CreateTerrain()
 
 			//cout << "Pos " << ( *pVertices ).position.x << " " << ( *pVertices ).position.y << " " << ( *pVertices ).position.z << endl;
 			( *pVertices ).normal = XMFLOAT3( 0.0, 1.0, 0.0 );
-			( *pVertices++ ).texcoord = XMFLOAT2( 0.0, 0.0 );
+
+			( *pVertices++ ).texcoord = XMFLOAT2( y * texInterval, x * texInterval );
+
+			if( height[ y ][ x ] >= highMax )
+			{
+				highMax = height[ y ][ x ];
+			}
+			if( height[ y ][ x ] <= highMin )
+			{
+				highMin = height[ y ][ x ];
+			}
 		}
 	}
 
+	cout << "Max high is " << highMax << " and Min high is " << highMin << endl;
 	D3D11_SUBRESOURCE_DATA vbInitData;
 	ZeroMemory( &vbInitData, sizeof( D3D11_SUBRESOURCE_DATA ) );
 	vbInitData.pSysMem = pVertData;
@@ -1103,9 +1103,44 @@ void Terrain::Render( CModelViewerCamera *cam, ID3D11DeviceContext* pd3dImmediat
 	pd3dImmediateContext->PSSetShader( m_pRenderTerrainPS, NULL, 0 );
 	pd3dImmediateContext->PSSetShaderResources( 0, 1, &m_pHeightmap_textureSRV );
 	pd3dImmediateContext->PSSetShaderResources( 1, 1, &m_pLayerdef_textureSRV );
+	pd3dImmediateContext->PSSetShaderResources( 2, 1, &m_pRock_bump_textureSRV );
+	pd3dImmediateContext->PSSetShaderResources( 3, 1, &m_pRock_microbump_textureSRV );
+	pd3dImmediateContext->PSSetShaderResources( 4, 1, &m_pRock_diffuse_textureSRV );
+	pd3dImmediateContext->PSSetShaderResources( 5, 1, &m_pSand_bump_textureSRV );
+	pd3dImmediateContext->PSSetShaderResources( 6, 1, &m_pSand_microbump_textureSRV );
+	pd3dImmediateContext->PSSetShaderResources( 7, 1, &m_pSand_diffuse_textureSRV );
+	pd3dImmediateContext->PSSetShaderResources( 8, 1, &m_pGrass_diffuse_textureSRV );
+	pd3dImmediateContext->PSSetShaderResources( 9, 1, &m_pSlope_diffuse_textureSRV );
+	pd3dImmediateContext->PSSetShaderResources( 10, 1, &m_pWater_bump_textureSRV );
 	//pd3dImmediateContext->PSSetShaderResources( 1, 1, &m_pHeightmap_textureSRV );
 	//pd3dImmediateContext->PSSetShaderResources( 1, 1, &m_pHeightmap_textureSRV );
 	pd3dImmediateContext->DrawIndexed( m_iIndexCount, 0, 0 );
+}
+
+HRESULT Terrain::LoadTextures()
+{
+	HRESULT hr = S_OK;
+	V_RETURN( DXUTCreateShaderResourceViewFromFile( m_pDevice, L"TerrainTextures/rock_bump6.dds", &m_pRock_bump_textureSRV ) );
+	V_RETURN( DXUTCreateShaderResourceViewFromFile( m_pDevice, L"TerrainTextures/terrain_rock4.dds", &m_pRock_diffuse_textureSRV ) );
+	V_RETURN( DXUTCreateShaderResourceViewFromFile( m_pDevice, L"TerrainTextures/sand_diffuse.dds", &m_pSand_diffuse_textureSRV ) );
+	V_RETURN( DXUTCreateShaderResourceViewFromFile( m_pDevice, L"TerrainTextures/rock_bump4.dds", &m_pSand_bump_textureSRV ) );
+	V_RETURN( DXUTCreateShaderResourceViewFromFile( m_pDevice, L"TerrainTextures/terrain_grass.dds", &m_pGrass_diffuse_textureSRV ) );
+	V_RETURN( DXUTCreateShaderResourceViewFromFile( m_pDevice, L"TerrainTextures/terrain_slope.dds", &m_pSlope_diffuse_textureSRV ) );
+	V_RETURN( DXUTCreateShaderResourceViewFromFile( m_pDevice, L"TerrainTextures/lichen1_normal.dds", &m_pSand_microbump_textureSRV ) );
+	V_RETURN( DXUTCreateShaderResourceViewFromFile( m_pDevice, L"TerrainTextures/rock_bump4.dds", &m_pRock_microbump_textureSRV ) );
+	V_RETURN( DXUTCreateShaderResourceViewFromFile( m_pDevice, L"TerrainTextures/water_bump.dds", &m_pWater_bump_textureSRV ) );
+
+	// Create the sample state
+	D3D11_SAMPLER_DESC sampDesc;
+	ZeroMemory( &sampDesc, sizeof(sampDesc) );
+	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	sampDesc.MinLOD = 0;
+	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	V_RETURN( m_pDevice->CreateSamplerState( &sampDesc, &m_pGeneralTexSS ) );
 }
 
 float bilinear_interpolation(float fx, float fy, float a, float b, float c, float d)

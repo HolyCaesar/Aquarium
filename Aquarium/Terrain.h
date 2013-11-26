@@ -32,9 +32,6 @@
 #define terrain_layerdef_map_texture_size				1024
 #define terrain_depth_shadow_map_texture_size			512
 
-#define sky_gridpoints						10
-#define sky_texture_angle					0.425f
-
 #define main_buffer_size_multiplier			1.1f
 #define reflection_buffer_size_multiplier   1.1f
 #define refraction_buffer_size_multiplier   1.1f
@@ -63,9 +60,9 @@ public:
 	~Terrain(void);
 
 	HRESULT Initialize( ID3D11Device* device );
-	void Clean();
+	void OnD3D11DestroyDevice();
 	void ReCreateBuffers();
-	void LoadTextures();
+	HRESULT LoadTextures();
 	void Render( CModelViewerCamera *cam, ID3D11DeviceContext* pd3dImmediateContext, XMMATRIX* pRotate );
 	HRESULT CreateTerrain();
 
@@ -102,31 +99,31 @@ public:
 	UINT MultiSampleCount;
 	UINT MultiSampleQuality;
 
-	ID3D11Texture2D		*m_pRock_bump_texture;
+	//ID3D11Texture2D		*m_pRock_bump_texture;
 	ID3D11ShaderResourceView *m_pRock_bump_textureSRV;
 
-	ID3D11Texture2D		*m_pRock_microbump_texture;
+	//ID3D11Texture2D		*m_pRock_microbump_texture;
 	ID3D11ShaderResourceView *m_pRock_microbump_textureSRV;
 
-	ID3D11Texture2D		*m_pRock_diffuse_texture;
+	//ID3D11Texture2D		*m_pRock_diffuse_texture;
 	ID3D11ShaderResourceView *m_pRock_diffuse_textureSRV;	
 
-	ID3D11Texture2D		*m_pSand_bump_texture;
+	//ID3D11Texture2D		*m_pSand_bump_texture;
 	ID3D11ShaderResourceView *m_pSand_bump_textureSRV;
 
-	ID3D11Texture2D		*m_pSand_microbump_texture;
+	//ID3D11Texture2D		*m_pSand_microbump_texture;
 	ID3D11ShaderResourceView *m_pSand_microbump_textureSRV;
 
-	ID3D11Texture2D		*m_pSand_diffuse_texture;
+	//ID3D11Texture2D		*m_pSand_diffuse_texture;
 	ID3D11ShaderResourceView *m_pSand_diffuse_textureSRV;	
 
-	ID3D11Texture2D		*m_pGrass_diffuse_texture;
+	//ID3D11Texture2D		*m_pGrass_diffuse_texture;
 	ID3D11ShaderResourceView *m_pGrass_diffuse_textureSRV;	
 
-	ID3D11Texture2D		*m_pSlope_diffuse_texture;
+	//ID3D11Texture2D		*m_pSlope_diffuse_texture;
 	ID3D11ShaderResourceView *m_pSlope_diffuse_textureSRV;	
 
-	ID3D11Texture2D		*m_pWater_bump_texture;
+	//ID3D11Texture2D		*m_pWater_bump_texture;
 	ID3D11ShaderResourceView *m_pWater_bump_textureSRV;	
 
 	ID3D11Texture2D			 *m_pReflection_color_resource;
@@ -161,7 +158,9 @@ public:
 	ID3D11ShaderResourceView *m_pMain_color_resource_resolvedSRV;
 
 	ID3D11Device* m_pDevice;
-	ID3D11RasterizerState *m_pRasterizerState;
+	ID3D11RasterizerState* m_pRasterizerState;
+
+	ID3D11SamplerState*	m_pGeneralTexSS;
 
 	float				height[ terrain_gridpoints + 1 ][ terrain_gridpoints + 1 ];
 	XMFLOAT3			normal[ terrain_gridpoints + 1 ][ terrain_gridpoints + 1 ];
