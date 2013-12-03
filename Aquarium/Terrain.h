@@ -5,7 +5,7 @@
 #define terrain_numpatches_1d				64
 #define terrain_geometry_scale				1.0f
 #define terrain_maxheight					30.0f 
-#define terrain_minheight					-30.0f 
+#define terrain_minheight					-40.0f 
 #define terrain_fractalfactor				0.68f;
 #define terrain_fractalinitialvalue			100.0f
 #define terrain_smoothfactor1				0.99f

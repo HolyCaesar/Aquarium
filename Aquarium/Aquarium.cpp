@@ -155,7 +155,7 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
 	XMVECTORF32 vecEye = { 0.0f, 150.0f, -600.0f, 0.f };
 	XMVECTORF32 vecAt = { 0.0f, 0.0f, 0.0f, 0.f };
 	g_MCamera.SetViewParams( vecEye, vecAt );
-	g_MCamera.SetRadius( 5.0f, 1.0f, 200.0f );
+	g_MCamera.SetRadius( 5.0f, 1.0f, 1000.0f );
 
 	return S_OK;
 }

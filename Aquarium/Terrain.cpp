@@ -1038,9 +1038,9 @@ HRESULT Terrain::CreateTerrain()
 	if( !pVertData )
 		return E_OUTOFMEMORY;
 	TERRAIN_VERTEX* pVertices = pVertData;
-	float texInterval = 1.0 / ( terrain_gridpoints + 1 );
+	float texInterval = 100.0 / ( terrain_gridpoints + 1 );
 
-	// For text
+	// For test
 	float highMax = -10000, highMin = 10000;
 
 
@@ -1096,7 +1096,7 @@ void Terrain::Render( CModelViewerCamera *cam, ID3D11DeviceContext* pd3dImmediat
 	m_CBallInOne.mProjection = XMMatrixTranspose( cam->GetProjMatrix() );
 	pd3dImmediateContext->UpdateSubresource( m_pCBallInOne, 0, NULL, &m_CBallInOne, 0, 0 );
 
-	//pd3dImmediateContext->PSSetSamplers(0,1,&m_pGeneralTexSS );
+	pd3dImmediateContext->PSSetSamplers(0,1,&m_pGeneralTexSS );
 	pd3dImmediateContext->RSSetState( m_pRasterizerState );
 	pd3dImmediateContext->VSSetShader( m_pRenderTerrainVS, NULL, 0 );
 	pd3dImmediateContext->VSSetConstantBuffers( 0, 1, &m_pCBallInOne );
@@ -1126,7 +1126,7 @@ HRESULT Terrain::LoadTextures()
 	V_RETURN( DXUTCreateShaderResourceViewFromFile( m_pDevice, L"TerrainTextures/rock_bump4.dds", &m_pSand_bump_textureSRV ) );
 	V_RETURN( DXUTCreateShaderResourceViewFromFile( m_pDevice, L"TerrainTextures/terrain_grass.dds", &m_pGrass_diffuse_textureSRV ) );
 	V_RETURN( DXUTCreateShaderResourceViewFromFile( m_pDevice, L"TerrainTextures/terrain_slope.dds", &m_pSlope_diffuse_textureSRV ) );
-	V_RETURN( DXUTCreateShaderResourceViewFromFile( m_pDevice, L"TerrainTextures/lichen1_normal.dds", &m_pSand_microbump_textureSRV ) );
+	//V_RETURN( DXUTCreateShaderResourceViewFromFile( m_pDevice, L"TerrainTextures/lichen1_normal.dds", &m_pSand_microbump_textureSRV ) );
 	V_RETURN( DXUTCreateShaderResourceViewFromFile( m_pDevice, L"TerrainTextures/rock_bump4.dds", &m_pRock_microbump_textureSRV ) );
 	V_RETURN( DXUTCreateShaderResourceViewFromFile( m_pDevice, L"TerrainTextures/water_bump.dds", &m_pWater_bump_textureSRV ) );
 

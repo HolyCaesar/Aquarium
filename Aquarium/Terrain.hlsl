@@ -36,6 +36,7 @@ struct PSINPUT
 	float4 position : SV_Position;
 	centroid float2 texcoord : TEXCOORD0;
 	centroid float3 normal   : NORMAL;
+	float z_value : HEIGHT;
 	int  alphaFlag    : ALPHA;
 };
 
@@ -65,72 +66,25 @@ PSINPUT RenderTerrainVS( VSINPUT input )
 {
 	PSINPUT output = ( PSINPUT )0;
 
-	if( input.position.y >= terrain_height_sand_start && input.position.y <= terrain_height_sand_end )
-	{
-		output.alphaFlag = 1;
-	}
-	else if( input.position.y >= terrain_height_grass_start && input.position.y <= terrain_height_grass_end )
-	{
-		output.alphaFlag = 2;
-	}
-	else if( input.position.y >= terrain_height_trees_start && input.position.y <= terrain_height_trees_end )
-	{
-		output.alphaFlag = 3;
-	}
-	else if( input.position.y >= terrain_height_underwater_start && input.position.y <= terrain_height_underwater_end )
-	{
-		output.alphaFlag = 4;
-	}
-	else if( input.position.y >= terrain_height_sand_end && input.position.y <= terrain_slope_grass_start )
-	{
-		output.alphaFlag = 5;
-	}
-	else if( input.position.y >= terrain_height_rocks_start && input.position.y <= terrain_slope_rocks_start )
-	{
-		output.alphaFlag = 6;
-	}
-
 	input.position.w = 1;
 	output.position = mul( input.position, mWorld );
 	output.position = mul( output.position, mView );
 	output.position = mul( output.position, mProjection );
 	output.texcoord = input.texcoord;
 	output.normal   = float3( 0, 1, 0 );
-
+	output.z_value = input.position.y;
 
 	return output;
 }
-
-
 
 float4 RenderTerrainPS( PSINPUT input ) : SV_Target
 {
 	//return float4( 1, 1, 1, 0 );
 	float4 final_color = float4( 0, 0, 0, 0 );
-	if( input.alphaFlag == 1 )
-	{
-		final_color = m_pSand_diffuse_textureSRV.Sample( samGeneral, input.texcoord );
-	}
-	else if( input.alphaFlag == 2 )
-	{
-		final_color = m_pGrass_diffuse_textureSRV.Sample( samGeneral, input.texcoord );
-	}
-	else if( input.alphaFlag == 3 )
-	{
-		final_color = m_pGrass_diffuse_textureSRV.Sample( samGeneral, input.texcoord );
-	}
-	else if( input.alphaFlag == 4 )
-	{
-		final_color = m_pSand_diffuse_textureSRV.Sample( samGeneral, input.texcoord );
-	}
-	else if( input.alphaFlag == 5 )
-	{
-		final_color = m_pSlope_diffuse_textureSRV.Sample( samGeneral, input.texcoord );
-	}
-	else if( input.alphaFlag == 6 )
-	{
-		final_color = m_pRock_diffuse_textureSRV.Sample( samGeneral, input.texcoord );
-	}
+	float alpha = ( input.z_value + 3.3 ) / 10.0;
+	alpha = clamp( alpha, 0, 1 );
 
+	final_color = m_pGrass_diffuse_textureSRV.Sample( samGeneral, input.texcoord )*alpha + (1.0f-alpha)* m_pSand_diffuse_textureSRV.Sample( samGeneral, input.texcoord );
+	
 	return final_color;
 }
