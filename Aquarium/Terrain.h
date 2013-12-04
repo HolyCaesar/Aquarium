@@ -4,8 +4,8 @@
 #define terrain_gridpoints					512
 #define terrain_numpatches_1d				64
 #define terrain_geometry_scale				1.0f
-#define terrain_maxheight					30.0f 
-#define terrain_minheight					-40.0f 
+#define terrain_maxheight					40.0f 
+#define terrain_minheight					-50.0f 
 #define terrain_fractalfactor				0.68f;
 #define terrain_fractalinitialvalue			100.0f
 #define terrain_smoothfactor1				0.99f
@@ -178,13 +178,20 @@ public:
 
 	ID3D11Buffer		*m_pHeightfield_vertexbuffer;
 	ID3D11Buffer		*m_pHeightfield_indexbuffer;
+	ID3D11Buffer		*m_pWater_vertexbuffer;
+	ID3D11Buffer		*m_pWater_indexbuffer;
+
 	unsigned int         m_iIndexCount;
+	unsigned int         m_iWaterIndexCount;
 
 	ID3D11InputLayout   *m_pHeightfield_inputlayout;
 	ID3D11InputLayout   *m_pTrianglestrip_inputlayout;
 
 	ID3D11VertexShader  *m_pRenderTerrainVS;
 	ID3D11PixelShader   *m_pRenderTerrainPS;
+
+	ID3D11VertexShader  *m_pRenderWaterVS;
+	ID3D11PixelShader   *m_pRenderWaterPS;
 
 	CONSTANT_BUFFER		m_CBallInOne;
 	ID3D11Buffer*		m_pCBallInOne;

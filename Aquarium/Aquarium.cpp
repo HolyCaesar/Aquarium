@@ -141,10 +141,10 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
 	WCHAR strPath[MAX_PATH];
 	DXUTFindDXSDKMediaFileCch(strPath, MAX_PATH, L"misc\\sky_cube.dds");
 	ID3D11Device* test = DXUTGetD3D11Device();
-	DXUTCreateShaderResourceViewFromFile( DXUTGetD3D11Device(), strPath, &g_pSRV_SkyCube );
+	V_RETURN( DXUTCreateShaderResourceViewFromFile( DXUTGetD3D11Device(), strPath, &g_pSRV_SkyCube ) );
 	assert(g_pSRV_SkyCube);
 
-	g_pSRV_SkyCube->GetResource((ID3D11Resource**)&g_pSkyCubeMap);
+	g_pSRV_SkyCube->GetResource( (ID3D11Resource**)&g_pSkyCubeMap );
 	assert(g_pSkyCubeMap);
 
 	g_SkyBox.Initialization( DXUTGetD3D11Device(), 50, g_pSkyCubeMap, g_pSRV_SkyCube );
@@ -155,7 +155,7 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
 	XMVECTORF32 vecEye = { 0.0f, 150.0f, -600.0f, 0.f };
 	XMVECTORF32 vecAt = { 0.0f, 0.0f, 0.0f, 0.f };
 	g_MCamera.SetViewParams( vecEye, vecAt );
-	g_MCamera.SetRadius( 5.0f, 1.0f, 1000.0f );
+	g_MCamera.SetRadius( 5.0f, 1.0f, 200.0f );
 
 	return S_OK;
 }
@@ -218,12 +218,16 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
 	XMMATRIX mView;
 	XMMATRIX mProj;
 	XMMATRIX mWorldViewProjection;
-	mView = g_Camera.GetViewMatrix();
-	mProj = g_Camera.GetProjMatrix();
+	//mView = g_Camera.GetViewMatrix();
+	//mProj = g_Camera.GetProjMatrix();
+	mView = g_MCamera.GetViewMatrix();
+	mProj = g_MCamera.GetProjMatrix();
+	XMMATRIX rotate2 = XMMatrixRotationZ( -90 );
+	mView = XMMatrixMultiply( rotate2, mView );
 	mWorldViewProjection = XMMatrixMultiply( mView, mProj );
-	//XMStoreFloat4x4( &mWorldViewProjection, XMMatrixTranspose( XMLoadFloat4x4( &mWorldViewProjection ) ) );
 
-	//g_SkyBox.RenderSkyBox( &mWorldViewProjection, pd3dImmediateContext );
+	
+	g_SkyBox.RenderSkyBox( &mWorldViewProjection, pd3dImmediateContext );
 	XMMATRIX rotate =  XMMatrixRotationY(fTime);
 	g_Terrian.Render( &g_MCamera, pd3dImmediateContext,& rotate );
 

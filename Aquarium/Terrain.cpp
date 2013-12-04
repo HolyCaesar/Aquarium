@@ -98,9 +98,12 @@ Terrain::Terrain(void)
 
 	m_pRenderTerrainVS = NULL;
 	m_pRenderTerrainPS = NULL;
+	m_pRenderWaterVS = NULL;
+	m_pRenderWaterPS = NULL;
 
 	m_pCBallInOne = NULL;
 	m_iIndexCount = 0;
+	m_iWaterIndexCount = 0;
 
 	m_pGeneralTexSS = NULL;
 }
@@ -135,7 +138,6 @@ HRESULT Terrain::Initialize( ID3D11Device* device )
 	HRESULT hr = S_OK;
 	m_pDevice = device;
 
-	const D3D11_INPUT_ELEMENT_DESC TerrainLayout[] = { "PATCH_PARAMETERS",  0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 };
 	const D3D11_INPUT_ELEMENT_DESC TriangleLayout[] = 
 	{
 		{ "POSITION",  0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -150,6 +152,16 @@ HRESULT Terrain::Initialize( ID3D11Device* device )
 	//V_RETURN( device->CreateInputLayout( TriangleLayout, ARRAYSIZE( TerrainLayout ), pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), &m_pHeightfield_inputlayout ) );
 	V_RETURN( DXUTCompileFromFile( L"Terrain.hlsl", nullptr, "RenderTerrainPS", "ps_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &pPSBlob ) );
 	V_RETURN( device->CreatePixelShader( pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), NULL, &m_pRenderTerrainPS ) );
+
+	pVSBlob->Release();
+	pPSBlob->Release();
+
+	V_RETURN( DXUTCompileFromFile( L"Terrain.hlsl", nullptr, "RenderWaterVS", "vs_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &pVSBlob ) );
+	V_RETURN( device->CreateVertexShader( pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &m_pRenderWaterVS ) );
+	V_RETURN( device->CreateInputLayout( TriangleLayout, ARRAYSIZE( TriangleLayout ), pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), &m_pTrianglestrip_inputlayout ) );
+	V_RETURN( DXUTCompileFromFile( L"Terrain.hlsl", nullptr, "RenderWaterPS", "ps_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &pPSBlob ) );
+	V_RETURN( device->CreatePixelShader( pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), NULL, &m_pRenderWaterPS ) );
+
 	pVSBlob->Release();
 	pPSBlob->Release();
 
@@ -507,6 +519,8 @@ void Terrain::OnD3D11DestroyDevice()
 
 	SAFE_RELEASE( m_pHeightfield_indexbuffer );
 	SAFE_RELEASE( m_pTrianglestrip_inputlayout );
+	SAFE_RELEASE( m_pWater_indexbuffer );
+	SAFE_RELEASE( m_pWater_vertexbuffer );
 
 	SAFE_RELEASE( m_pHeightfield_vertexbuffer );
 	SAFE_RELEASE( m_pHeightfield_inputlayout );
@@ -517,6 +531,8 @@ void Terrain::OnD3D11DestroyDevice()
 
 	SAFE_RELEASE( m_pRenderTerrainVS );
 	SAFE_RELEASE( m_pRenderTerrainPS );
+	SAFE_RELEASE( m_pRenderWaterVS );
+	SAFE_RELEASE( m_pRenderWaterPS );
 
 	SAFE_RELEASE( m_pCBallInOne );
 	SAFE_RELEASE( m_pRasterizerState );
@@ -1038,9 +1054,9 @@ HRESULT Terrain::CreateTerrain()
 	if( !pVertData )
 		return E_OUTOFMEMORY;
 	TERRAIN_VERTEX* pVertices = pVertData;
-	float texInterval = 100.0 / ( terrain_gridpoints + 1 );
+	float texInterval = 50.0 / ( terrain_gridpoints + 1 );
 
-	// For test
+	// For text
 	float highMax = -10000, highMin = 10000;
 
 
@@ -1075,6 +1091,80 @@ HRESULT Terrain::CreateTerrain()
 	vbInitData.pSysMem = pVertData;
 	V_RETURN( m_pDevice->CreateBuffer( &vbDesc, &vbInitData, &m_pHeightfield_vertexbuffer ) );
 	SAFE_DELETE_ARRAY( pVertData );
+
+	delete [] pIndexData;
+	delete [] pVertData;
+
+	// Water vertex ( a square water )
+	unsigned int waterW = ( terrain_gridpoints / 2 );
+	unsigned int waterH = ( terrain_gridpoints / 2 );
+	g_dwNumIndices = waterW * waterH * 6;
+	ibDesc.ByteWidth = g_dwNumIndices * sizeof( unsigned int );
+	ibDesc.Usage = D3D11_USAGE_DEFAULT;
+	ibDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	ibDesc.CPUAccessFlags = 0;
+	ibDesc.MiscFlags = 0;
+
+	pIndexData = new unsigned long[ g_dwNumIndices ];
+	if( !pIndexData )
+		return E_OUTOFMEMORY;
+	pIndices = pIndexData;
+	for( unsigned int y = 1; y < waterW + 1; y++ )
+	{
+		for( unsigned int x = 1; x < waterH + 1; x++ )
+		{
+			pIndices[ m_iWaterIndexCount++ ] = ( unsigned int )( ( y - 1 ) * ( waterW + 1 ) + ( x - 1 ) );
+			pIndices[ m_iWaterIndexCount++ ] = ( unsigned int )( ( y - 0 ) * ( waterW + 1 ) + ( x - 1 ) );
+			pIndices[ m_iWaterIndexCount++ ] = ( unsigned int )( ( y - 1 ) * ( waterW + 1 ) + ( x - 0 ) );
+
+			pIndices[ m_iWaterIndexCount++ ] = ( unsigned int )( ( y - 1 ) * ( waterW + 1 ) + ( x - 0 ) );
+			pIndices[ m_iWaterIndexCount++ ] = ( unsigned int )( ( y - 0 ) * ( waterW + 1 ) + ( x - 1 ) );
+			pIndices[ m_iWaterIndexCount++ ] = ( unsigned int )( ( y - 0 ) * ( waterW + 1 ) + ( x - 0 ) );
+		}
+	}
+
+	ZeroMemory( &ibInitData, sizeof( D3D11_SUBRESOURCE_DATA ) );
+	ibInitData.pSysMem = pIndexData;
+	V_RETURN( m_pDevice->CreateBuffer( &ibDesc, &ibInitData, &m_pWater_indexbuffer ) );
+	SAFE_DELETE_ARRAY( pIndexData );
+
+	// Create a Vertex Buffer
+	g_dwNumVertices = ( waterW + 1 ) * ( waterH + 1 );
+	vbDesc.ByteWidth = g_dwNumVertices * sizeof( TERRAIN_VERTEX );
+	vbDesc.Usage = D3D11_USAGE_DEFAULT;
+	vbDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vbDesc.CPUAccessFlags = 0;
+	vbDesc.MiscFlags = 0;
+
+	pVertData = new TERRAIN_VERTEX[ g_dwNumVertices ];
+	if( !pVertData )
+		return E_OUTOFMEMORY;
+	pVertices = pVertData;
+	texInterval = 50.0 / ( waterW + 1 );
+	for( int y = 0; y < waterW + 1; y++ )
+	{
+		for( int x = 0; x < waterW + 1; x++ )
+		{
+			( *pVertices ).position = XMFLOAT4( ( ( float )x / ( float )( waterW + 1 - 1 ) - 0.5f ) * /*XM_PI * 100*/waterW,
+				2.0f,
+				( ( float )y / ( float )( waterW + 1 - 1 ) - 0.5f ) * /*XM_PI * 100*/waterH,
+				0 );
+
+			( *pVertices ).normal = XMFLOAT3( 0.0, 1.0, 0.0 );
+
+			( *pVertices++ ).texcoord = XMFLOAT2( y * texInterval, x * texInterval );
+		}
+	}
+
+	ZeroMemory( &vbInitData, sizeof( D3D11_SUBRESOURCE_DATA ) );
+	vbInitData.pSysMem = pVertData;
+	V_RETURN( m_pDevice->CreateBuffer( &vbDesc, &vbInitData, &m_pWater_vertexbuffer ) );
+	SAFE_DELETE_ARRAY( pVertData );
+
+	delete [] pIndexData;
+	delete [] pVertData;
+	pIndices = NULL;
+	pVertices = NULL;
 
 	return hr;
 }
@@ -1115,6 +1205,29 @@ void Terrain::Render( CModelViewerCamera *cam, ID3D11DeviceContext* pd3dImmediat
 	//pd3dImmediateContext->PSSetShaderResources( 1, 1, &m_pHeightmap_textureSRV );
 	//pd3dImmediateContext->PSSetShaderResources( 1, 1, &m_pHeightmap_textureSRV );
 	pd3dImmediateContext->DrawIndexed( m_iIndexCount, 0, 0 );
+
+
+	pd3dImmediateContext->IASetInputLayout( m_pHeightfield_inputlayout );
+	pd3dImmediateContext->IASetVertexBuffers( 0, 1, &m_pWater_vertexbuffer, &stride, &offset );
+	pd3dImmediateContext->IASetIndexBuffer( m_pWater_indexbuffer, DXGI_FORMAT_R32_UINT, 0 );
+	pd3dImmediateContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+
+	pd3dImmediateContext->PSSetSamplers(0,1,&m_pGeneralTexSS );
+	pd3dImmediateContext->RSSetState( m_pRasterizerState );
+	pd3dImmediateContext->VSSetShader( m_pRenderTerrainVS, NULL, 0 );
+	pd3dImmediateContext->VSSetConstantBuffers( 0, 1, &m_pCBallInOne );
+	pd3dImmediateContext->PSSetShader( m_pRenderTerrainPS, NULL, 0 );
+
+
+	//pd3dImmediateContext->PSSetSamplers(0,1,&m_pGeneralTexSS );
+	//pd3dImmediateContext->RSSetState( m_pRasterizerState );
+	//pd3dImmediateContext->VSSetShader( m_pRenderTerrainVS, NULL, 0 );
+	//pd3dImmediateContext->VSSetConstantBuffers( 0, 1, &m_pCBallInOne );
+	//pd3dImmediateContext->PSSetShader( m_pRenderTerrainPS, NULL, 0 );
+	////pd3dImmediateContext->PSSetShaderResources( 0, 1, &m_pHeightmap_textureSRV );
+	////pd3dImmediateContext->PSSetShaderResources( 1, 1, &m_pLayerdef_textureSRV );
+
+	//pd3dImmediateContext->DrawIndexed( m_iWaterIndexCount, 0, 0 );
 }
 
 HRESULT Terrain::LoadTextures()

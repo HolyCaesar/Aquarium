@@ -36,8 +36,7 @@ struct PSINPUT
 	float4 position : SV_Position;
 	centroid float2 texcoord : TEXCOORD0;
 	centroid float3 normal   : NORMAL;
-	float z_value : HEIGHT;
-	int  alphaFlag    : ALPHA;
+	float  alpha_value  : ALPHA;
 };
 
 /*
@@ -71,20 +70,74 @@ PSINPUT RenderTerrainVS( VSINPUT input )
 	output.position = mul( output.position, mView );
 	output.position = mul( output.position, mProjection );
 	output.texcoord = input.texcoord;
+	output.alpha_value = input.position.y;
 	output.normal   = float3( 0, 1, 0 );
-	output.z_value = input.position.y;
 
 	return output;
 }
 
+
 float4 RenderTerrainPS( PSINPUT input ) : SV_Target
 {
-	//return float4( 1, 1, 1, 0 );
 	float4 final_color = float4( 0, 0, 0, 0 );
-	float alpha = ( input.z_value + 3.3 ) / 10.0;
-	alpha = clamp( alpha, 0, 1 );
 
-	final_color = m_pGrass_diffuse_textureSRV.Sample( samGeneral, input.texcoord )*alpha + (1.0f-alpha)* m_pSand_diffuse_textureSRV.Sample( samGeneral, input.texcoord );
+	// Sand and grass (Alpha texture mixing)
+	float alpha = ( input.alpha_value - 0.7 ) / 2;
+	alpha = clamp( alpha, 0, 1 );
+	final_color = ( 1.0f - alpha ) * m_pSand_diffuse_textureSRV.Sample( samGeneral, input.texcoord ) + alpha * m_pGrass_diffuse_textureSRV.Sample( samGeneral, input.texcoord );
+
+	// Multi-texture 
+	if( input.alpha_value > terrain_slope_grass_start )
+	{
+		final_color = final_color * 0.55 + m_pSlope_diffuse_textureSRV.Sample( samGeneral, input.texcoord ) * 0.45;
+	}
+
+	if( input.alpha_value > 4.0 )
+	{
+		final_color = final_color * 0.3 + m_pRock_diffuse_textureSRV.Sample( samGeneral, input.texcoord ) * 0.7;
+	}
+	
+	return final_color;
+}
+
+//*********************************
+// Water shader
+//*********************************
+PSINPUT RenderWaterVS( VSINPUT input )
+{
+	PSINPUT output = ( PSINPUT )0;
+
+	input.position.w = 1;
+	output.position = mul( input.position, mWorld );
+	output.position = mul( output.position, mView );
+	output.position = mul( output.position, mProjection );
+	output.texcoord = input.texcoord;
+	output.alpha_value = input.position.y;
+	output.normal   = float3( 0, 1, 0 );
+
+	return output;
+}
+
+
+float4 RenderWaterPS( PSINPUT input ) : SV_Target
+{
+	float4 final_color = float4( 0, 0, 0, 0 );
+
+	//// Sand and grass (Alpha texture mixing)
+	//float alpha = ( input.alpha_value - 0.7 ) / 2;
+	//alpha = clamp( alpha, 0, 1 );
+	//final_color = ( 1.0f - alpha ) * m_pSand_diffuse_textureSRV.Sample( samGeneral, input.texcoord ) + alpha * m_pGrass_diffuse_textureSRV.Sample( samGeneral, input.texcoord );
+
+	//// Multi-texture 
+	//if( input.alpha_value > terrain_slope_grass_start )
+	//{
+	//	final_color = final_color * 0.55 + m_pSlope_diffuse_textureSRV.Sample( samGeneral, input.texcoord ) * 0.45;
+	//}
+
+	//if( input.alpha_value > 4.0 )
+	//{
+	//	final_color = final_color * 0.3 + m_pRock_diffuse_textureSRV.Sample( samGeneral, input.texcoord ) * 0.7;
+	//}
 	
 	return final_color;
 }
