@@ -23,7 +23,7 @@
 //GlowEffect									PostEffect_Glow = GlowEffect(SUB_TEXTUREWIDTH,SUB_TEXTUREHEIGHT);
 //MotionBlurEffect							PostEffect_Blur = MotionBlurEffect(SUB_TEXTUREWIDTH,SUB_TEXTUREHEIGHT);
 SkyBox g_SkyBox;
-Terrain g_Terrian;
+Terrain g_Terrain;
 CFirstPersonCamera g_Camera;                // A model viewing camera
 CModelViewerCamera g_MCamera;
 CDXUTDialogResourceManager					DialogResourceManager; 
@@ -150,12 +150,15 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
 	g_SkyBox.Initialization( DXUTGetD3D11Device(), 50, g_pSkyCubeMap, g_pSRV_SkyCube );
 
 	// Terrain
-	g_Terrian.Initialize( DXUTGetD3D11Device() );
+	g_Terrain.Initialize( DXUTGetD3D11Device() );
+	g_Terrain.BackbufferWidth = 1280.0f;
+	g_Terrain.BackbufferHeight = 720.0f;
+	g_Terrain.ReCreateBuffers();
 
-	XMVECTORF32 vecEye = { 0.0f, 150.0f, -600.0f, 0.f };
+	XMVECTORF32 vecEye = { 0.0f, 60.0f, -600.0f, 0.f };
 	XMVECTORF32 vecAt = { 0.0f, 0.0f, 0.0f, 0.f };
 	g_MCamera.SetViewParams( vecEye, vecAt );
-	g_MCamera.SetRadius( 5.0f, 1.0f, 200.0f );
+	g_MCamera.SetRadius( 60.0f, 1.0f, 200.0f );
 
 	return S_OK;
 }
@@ -222,16 +225,14 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
 	//mProj = g_Camera.GetProjMatrix();
 	mView = g_MCamera.GetViewMatrix();
 	mProj = g_MCamera.GetProjMatrix();
-	XMMATRIX rotate2 = XMMatrixRotationZ( -90 );
-	mView = XMMatrixMultiply( rotate2, mView );
+	//XMMATRIX rotate2 = XMMatrixRotationZ( -90 );
+	//mView = XMMatrixMultiply( rotate2, mView );
 	mWorldViewProjection = XMMatrixMultiply( mView, mProj );
-
 	
-	g_SkyBox.RenderSkyBox( &mWorldViewProjection, pd3dImmediateContext );
+
+	//g_SkyBox.RenderSkyBox( &mWorldViewProjection, pd3dImmediateContext );
 	XMMATRIX rotate =  XMMatrixRotationY(fTime);
-	g_Terrian.Render( &g_MCamera, pd3dImmediateContext,& rotate );
-
-
+	g_Terrain.Render( &g_MCamera, pd3dImmediateContext,&rotate, fTime, &g_SkyBox );
 
 	//DXUT_BeginPerfEvent( DXUT_PERFEVENTCOLOR2, L"UI" );
 	//UI.OnRender( fElapsedTime );
@@ -258,7 +259,7 @@ void CALLBACK OnD3D11DestroyDevice( void* pUserContext )
 	DialogResourceManager.OnD3D11DestroyDevice();
 	DXUTGetGlobalResourceCache().OnDestroyDevice();
 	g_SkyBox.OnD3D11DestroyDevice();
-	g_Terrian.OnD3D11DestroyDevice();
+	g_Terrain.OnD3D11DestroyDevice();
 }
 
 
@@ -371,7 +372,7 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdL
 	DXUTCreateWindow( L"Ocean Animation" );
 
 	// Only require 10-level hardware
-	DXUTCreateDevice( D3D_FEATURE_LEVEL_11_0, true, 1024, 768 );
+	DXUTCreateDevice( D3D_FEATURE_LEVEL_11_0, true, 1280, 720 );
 	DXUTMainLoop(); // Enter into the DXUT ren  der loop
 
 	// Perform any application-level cleanup here

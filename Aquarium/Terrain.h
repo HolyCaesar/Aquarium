@@ -40,6 +40,8 @@
 #define scene_z_far							25000.0f
 #define camera_fov							110.0f
 
+class SkyBox;
+
 class Terrain
 {
 	struct TERRAIN_VERTEX
@@ -54,6 +56,19 @@ class Terrain
 		XMMATRIX mView;
 		XMMATRIX mWorld;
 		XMMATRIX mProjection;
+
+		// Control variable
+		XMFLOAT2 mWaterTexcoordShift;
+
+		XMMATRIX mModelViewMatrix;
+		XMMATRIX mModelViewProjectionMatrix;
+		XMVECTOR mCameraPosition;
+		XMVECTOR mCameraDirection;
+		XMMATRIX mLightModelViewProjectionMatrix;
+		XMMATRIX mLightModelViewProjectionMatrixInv;
+		float fHalfSpaceCullSign;
+		float fHalfSpaceCullPosition;
+		XMFLOAT2 fScreenSizeInv;
 	};
 public:
 	Terrain(void);
@@ -63,7 +78,7 @@ public:
 	void OnD3D11DestroyDevice();
 	void ReCreateBuffers();
 	HRESULT LoadTextures();
-	void Render( CModelViewerCamera *cam, ID3D11DeviceContext* pd3dImmediateContext, XMMATRIX* pRotate );
+	void Render( CModelViewerCamera *cam, ID3D11DeviceContext* pd3dImmediateContext, XMMATRIX* pRotate, float fTime, SkyBox *sb );
 	HRESULT CreateTerrain();
 
 	float DynamicTesselationFactor;
@@ -72,6 +87,12 @@ public:
 	void SetupReflectionView( CFirstPersonCamera *cam );
 	void SetupRefractionView( CFirstPersonCamera *cam );
 	void SetupLightView( CFirstPersonCamera *cam );
+
+	void SetupNormalView( ID3D11DeviceContext* pd3dImmediateContext, CModelViewerCamera *cam );
+	void SetupReflectionView( ID3D11DeviceContext* pd3dImmediateContext, CModelViewerCamera *cam );
+	void SetupRefractionView( ID3D11DeviceContext* pd3dImmediateContext, CModelViewerCamera *cam );
+	void SetupLightView( ID3D11DeviceContext* pd3dImmediateContext, CModelViewerCamera *cam );
+
 	HRESULT CreateRenderState( ID3D11Device* device ); 
 	float BackbufferWidth;
 	float BackbufferHeight;
@@ -193,8 +214,16 @@ public:
 	ID3D11VertexShader  *m_pRenderWaterVS;
 	ID3D11PixelShader   *m_pRenderWaterPS;
 
+	ID3D11VertexShader  *m_pRenderMainVS;
+	ID3D11PixelShader   *m_pRenderMainPS;
+
 	CONSTANT_BUFFER		m_CBallInOne;
 	ID3D11Buffer*		m_pCBallInOne;
+
+	/*
+	* Water Stuff
+	*/
+	ID3D11SamplerState *m_pAnisotropicWrapTexSS;
 };
 
 float bilinear_interpolation( float fx, float fy, float a, float b, float c, float d );
