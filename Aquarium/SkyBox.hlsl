@@ -23,6 +23,7 @@ SkyBoxVS_Output SkyBoxVS( SkyBoxVS_Input input )
 
 	output.Pos = input.Pos;
 	output.Tex = normalize( mul( input.Pos, g_mWorldViewProjection ) );
+	output.Tex.yz = output.Tex.zy;
 
 	return output;
 }

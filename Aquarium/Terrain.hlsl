@@ -252,7 +252,7 @@ float4 RenderWaterPS( WATER_PSINPUT input ) : SV_Target
 
 	// need more high frequency bumps for plausible water surface, so creating normal defined by 2 instances of same bump texture
 	microbump_normal = normalize( 2 * m_pWater_bump_textureSRV.Sample( samAnisotropicWarp, input.texcoord - cbWaterBumpTexcoordShift * 0.2 ).gbr - float3( 1, -8, 1 ) );
-	microbump_normal+= normalize( 2 * m_pWater_bump_textureSRV.Sample( samAnisotropicWarp, input.texcoord * 0.5 + cbWaterBumpTexcoordShift * 0.05 ).gbr - float3( 1, -8, 1 ) );
+	microbump_normal += normalize( 2 * m_pWater_bump_textureSRV.Sample( samAnisotropicWarp, input.texcoord * 0.5 + cbWaterBumpTexcoordShift * 0.05 ).gbr - float3( 1, -8, 1 ) );
 
 	// calculating base normal rotation matrix
 	normal_rotation_matrix[ 1 ]=input.normal.xyz;

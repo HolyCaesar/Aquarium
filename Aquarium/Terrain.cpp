@@ -1264,7 +1264,7 @@ void Terrain::Render( CModelViewerCamera *cam, ID3D11DeviceContext* pd3dImmediat
 	SetupReflectionView( pd3dImmediateContext, cam );
 
 	// Rendering sky to reflection RT
-	sb->RenderSkyBox( &m_CBallInOne.mModelViewProjectionMatrix, pd3dImmediateContext );
+	sb->RenderSkyBox( &XMMatrixInverse( NULL, view ), pd3dImmediateContext );
 
 	// Rendering terrain to reflection RT
 	//tex_variable=pEffect->GetVariableByName("g_DepthTexture")->AsShaderResource();
@@ -1365,7 +1365,7 @@ void Terrain::Render( CModelViewerCamera *cam, ID3D11DeviceContext* pd3dImmediat
 	pd3dImmediateContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
 	pd3dImmediateContext->VSSetShader( m_pRenderMainVS, NULL, 0 );
 	pd3dImmediateContext->PSSetShader( m_pRenderMainPS, NULL, 0 );
-	pd3dImmediateContext->PSSetShaderResources( 14, 1, &m_pMain_color_resource_resolvedSRV /*m_pReflection_color_resourceSRV*/ );
+	pd3dImmediateContext->PSSetShaderResources( 14, 1, &/*m_pMain_color_resource_resolvedSRV*/ m_pReflection_color_resourceSRV );
 	pd3dImmediateContext->Draw( 4, 0 );
 	//pEffect->GetTechniqueByName("MainToBackBuffer")->GetPassByIndex(0)->Apply(0, pContext);
 	//stride=sizeof(float)*6;

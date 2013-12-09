@@ -190,7 +190,7 @@ HRESULT CALLBACK OnD3D11ResizedSwapChain( ID3D11Device* pd3dDevice, IDXGISwapCha
 	g_SkyBox.Resized( pBackBufferSurfaceDesc );
 	g_MCamera.SetProjParams( XM_PI / 4, fAspectRatio, 0.1f, 5000.0f );
 	g_MCamera.SetWindow(pBackBufferSurfaceDesc->Width,pBackBufferSurfaceDesc->Height );
-	g_MCamera.SetButtonMasks( MOUSE_MIDDLE_BUTTON, MOUSE_WHEEL, MOUSE_LEFT_BUTTON );
+	g_MCamera.SetButtonMasks( MOUSE_LEFT_BUTTON, MOUSE_WHEEL, MOUSE_RIGHT_BUTTON );
 	return S_OK;
 }
 

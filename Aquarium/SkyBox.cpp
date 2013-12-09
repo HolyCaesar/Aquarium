@@ -101,9 +101,9 @@ HRESULT SkyBox::Initialization( ID3D11Device* device, float fSize, ID3D11Texture
     // Depth stencil state
     D3D11_DEPTH_STENCIL_DESC DSDesc;
     ZeroMemory( &DSDesc, sizeof( D3D11_DEPTH_STENCIL_DESC ) );
-    DSDesc.DepthEnable = FALSE;
+    DSDesc.DepthEnable = TRUE;
     DSDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-    DSDesc.DepthFunc = D3D11_COMPARISON_LESS;
+    DSDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
     DSDesc.StencilEnable = FALSE;
     V_RETURN( device->CreateDepthStencilState( &DSDesc, &m_pDepthStencilState ) );
     DXUT_SetDebugName( m_pDepthStencilState, "DepthStencil" );
@@ -220,7 +220,7 @@ void SkyBox::RenderSkyBox( XMMATRIX* pmWorldViewProj, ID3D11DeviceContext* pd3dI
     pd3dImmediateContext->PSSetShaderResources( 0, 1, &m_pEnvironmentRV );
 
     pd3dImmediateContext->OMSetDepthStencilState( m_pDepthStencilState, 0 );
-	pd3dImmediateContext->OMSetBlendState(NULL, 0, 0xffffffff);
+	//pd3dImmediateContext->OMSetBlendState(NULL, 0, 0xffffffff);
     pd3dImmediateContext->RSSetState( m_pRasterizerState );
 
 	pd3dImmediateContext->Draw( 4, 0 );
