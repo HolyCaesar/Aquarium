@@ -68,6 +68,7 @@ cbuffer ConstantMatrix : register( b0 )
 
 	matrix mModelViewMatrix;
 	matrix mModelViewProjectionMatrix;
+	matrix mModelViewProjectionMatrixInv;
 	float3 mCameraPosition;
 	float3 mCameraDirection;
 	matrix mLightModelViewProjectionMatrix;

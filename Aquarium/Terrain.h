@@ -62,6 +62,7 @@ class Terrain
 
 		XMMATRIX mModelViewMatrix;
 		XMMATRIX mModelViewProjectionMatrix;
+		XMMATRIX mModelViewProjectionMatrixInv;
 		XMVECTOR mCameraPosition;
 		XMVECTOR mCameraDirection;
 		XMMATRIX mLightModelViewProjectionMatrix;

@@ -1245,7 +1245,7 @@ void Terrain::Render( CModelViewerCamera *cam, ID3D11DeviceContext* pd3dImmediat
 	m_CBallInOne.mWorld = XMMatrixTranspose( world);
 	m_CBallInOne.mProjection = XMMatrixTranspose( cam->GetProjMatrix() );
 	m_CBallInOne.mWaterTexcoordShift = XMFLOAT2( fTime * 1.5f, fTime * 0.75 );
-	//m_CBallInOne.fScreenSizeInv = XMFLOAT2( 1.0f / ( BackbufferWidth * main_buffer_size_multiplier ), 1.0f / ( BackbufferHeight * main_buffer_size_multiplier ) );
+	m_CBallInOne.fScreenSizeInv = XMFLOAT2( 1.0f / ( BackbufferWidth * main_buffer_size_multiplier ), 1.0f / ( BackbufferHeight * main_buffer_size_multiplier ) );
 	pd3dImmediateContext->UpdateSubresource( m_pCBallInOne, 0, NULL, &m_CBallInOne, 0, 0 );
 
 	// Saving scene color buffer and back buffer to constants
@@ -1264,7 +1264,7 @@ void Terrain::Render( CModelViewerCamera *cam, ID3D11DeviceContext* pd3dImmediat
 	SetupReflectionView( pd3dImmediateContext, cam );
 
 	// Rendering sky to reflection RT
-	sb->RenderSkyBox( &mWorldViewProjection, pd3dImmediateContext );
+	sb->RenderSkyBox( &m_CBallInOne.mModelViewProjectionMatrix, pd3dImmediateContext );
 
 	// Rendering terrain to reflection RT
 	//tex_variable=pEffect->GetVariableByName("g_DepthTexture")->AsShaderResource();
@@ -1304,6 +1304,10 @@ void Terrain::Render( CModelViewerCamera *cam, ID3D11DeviceContext* pd3dImmediat
 	// Rendering terrain to main buffer
 	//tex_variable=pEffect->GetVariableByName("g_DepthTexture")->AsShaderResource();
 	//tex_variable->SetResource(shadowmap_resourceSRV);
+
+	//tex_variable=pEffect->GetVariableByName("g_WaterNormalMapTexture")->AsShaderResource();
+	//tex_variable->SetResource(water_normalmap_resourceSRV);
+
 	pd3dImmediateContext->PSSetSamplers(0,1,&m_pGeneralTexSS );
 	pd3dImmediateContext->RSSetState( m_pRasterizerState );
 	pd3dImmediateContext->VSSetShader( m_pRenderTerrainVS, NULL, 0 );
@@ -1361,7 +1365,7 @@ void Terrain::Render( CModelViewerCamera *cam, ID3D11DeviceContext* pd3dImmediat
 	pd3dImmediateContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
 	pd3dImmediateContext->VSSetShader( m_pRenderMainVS, NULL, 0 );
 	pd3dImmediateContext->PSSetShader( m_pRenderMainPS, NULL, 0 );
-	pd3dImmediateContext->PSSetShaderResources( 14, 1, &m_pMain_color_resource_resolvedSRV );
+	pd3dImmediateContext->PSSetShaderResources( 14, 1, &m_pMain_color_resource_resolvedSRV /*m_pReflection_color_resourceSRV*/ );
 	pd3dImmediateContext->Draw( 4, 0 );
 	//pEffect->GetTechniqueByName("MainToBackBuffer")->GetPassByIndex(0)->Apply(0, pContext);
 	//stride=sizeof(float)*6;
@@ -1480,7 +1484,7 @@ void Terrain::SetupReflectionView( ID3D11DeviceContext* pd3dImmediateContext, CM
 	XMStoreFloat3( &EyePoint, cam->GetEyePt() );
 	XMStoreFloat3( &LookAtPoint, cam->GetLookAtPt() );
 	EyePoint.y = -1.0f * EyePoint.y + 1.0f;
-	LookAtPoint.y = -1.0f*LookAtPoint.y + 1.0f;
+	LookAtPoint.y = -1.0f * LookAtPoint.y + 1.0f;
 
 	XMMATRIX mView;
 	XMMATRIX mProj;
@@ -1592,9 +1596,9 @@ void Terrain::SetupNormalView( ID3D11DeviceContext* pd3dImmediateContext, CModel
 	//pEffect->GetVariableByName("g_HalfSpaceCullSign")->AsScalar()->SetFloat(1.0);
 	//pEffect->GetVariableByName("g_HalfSpaceCullPosition")->AsScalar()->SetFloat(terrain_minheight*2);
 
+	m_CBallInOne.mModelViewMatrix = XMMatrixTranspose( mView );
 	m_CBallInOne.mModelViewProjectionMatrix = XMMatrixTranspose( mViewProj );
-	m_CBallInOne.mLightModelViewProjectionMatrix = XMMatrixTranspose( mViewProj );
-	m_CBallInOne.mLightModelViewProjectionMatrixInv = XMMatrixTranspose( mViewProjInv );
+	m_CBallInOne.mModelViewProjectionMatrixInv = XMMatrixTranspose( mViewProjInv );
 	m_CBallInOne.mCameraPosition = cameraPosition;
 	m_CBallInOne.mCameraDirection = normalized_direction;
 	m_CBallInOne.fHalfSpaceCullSign = 1.0f;
