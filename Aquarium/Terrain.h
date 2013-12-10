@@ -232,8 +232,42 @@ public:
 
 
 
-	// Test Stuff
 
+
+
+	/*
+	* Test Stuffs
+	*/
+
+	HRESULT TestInitialization( ID3D11Device* device );
+	void RenderTestStuff(  CModelViewerCamera *cam, ID3D11DeviceContext* pd3dImmediateContext, SkyBox *sb, float fTime );
+	struct CONSTANT_BUFFER_TEST
+	{
+		XMMATRIX mView;
+		XMMATRIX mWorld;
+		XMMATRIX mProjection;
+
+		// Control variable
+		XMMATRIX mRefelctionMatrix;
+
+		// Control Variables
+		float fWaterTranslation;
+		float fReflectRefractScale;
+		float padding[ 2 ];
+		XMFLOAT4 clipPlane;
+	};
+
+	ID3D11VertexShader  *m_pRenderWaterTestVS;
+	ID3D11PixelShader   *m_pRenderWaterTestPS;
+
+	ID3D11InputLayout   *m_pTriangleIILTest;
+
+	ID3D11VertexShader  *m_pRenderWaterRefracVSTest;
+	ID3D11PixelShader   *m_pRenderWaterRefracPSTest;
+
+	ID3D11SamplerState  *m_pSamplerGenTest;
+	ID3D11Buffer		*m_pWaterVertexbufferTest;
+	ID3D11Buffer		*m_pWaterIndexbufferTest;
 };
 
 float bilinear_interpolation( float fx, float fy, float a, float b, float c, float d );

@@ -8,7 +8,8 @@ cbuffer cbBuffer
 	// Control Variables
 	float fWaterTranslation;
 	float fReflectRefractScale;
-	//float2 padding;
+	float2 padding;
+	float4 clipPlane;
 }
 
 struct VSINPUT
@@ -48,21 +49,21 @@ PSINPUT FlatWaterVS( VSINPUT input )
 
 	output.tex = input.tex;
 
-	reflectProjectWorld = mul( mRefelctionMatrix, mProjectionMatrix );
-	reflectProjectWorld = mul( mWorldMatrix, reflectProjectWorld );
+	//reflectProjectWorld = mul( mRefelctionMatrix, mProjectionMatrix );
+	//reflectProjectWorld = mul( mWorldMatrix, reflectProjectWorld );
 
-	output.reflectionPosition = mul( input.position, reflectProjectWorld );
+	//output.reflectionPosition = mul( input.position, reflectProjectWorld );
 
 	viewProjectWorld = mul( mViewMatrix, mProjectionMatrix );
 	viewProjectWorld = mul( mWorldMatrix, viewProjectWorld );
 
-	output.refractionPosition = mul( input.position, viewProjectWorld );
+	//output.refractionPosition = mul( input.position, viewProjectWorld );
 
 	return output;
 }
 
 
-float4 FlatWaterPS( PSINPUT input ) : SV_POSITION
+float4 FlatWaterPS( PSINPUT input ) : SV_TARGET
 {
 	float4 final_color = { 1.0f, 1.0f, 1.0f, 1.0f };
 	float2 reflectTexCoord;
@@ -72,34 +73,101 @@ float4 FlatWaterPS( PSINPUT input ) : SV_POSITION
 	float4 reflectionColor;
 	float4 refractionColor;
 
-	// Move the texture of water
-	input.tex.y += fWaterTranslation;
+	//// Move the texture of water
+	//input.tex.y += fWaterTranslation;
 
-	// Calculate the projected reflectiont texture coordinates
-	// TODO divide by 2.0f maybe because 2 is the length of that square water
-	reflectTexCoord.x = input.reflectionPosition.x / input.reflectionPosition.w / 2.0f + 0.5f;
-	reflectTexCoord.y = -input.reflectionPosition.y / input.reflectionPosition.w / 2.0f + 0.5f;
+	//// Calculate the projected reflectiont texture coordinates
+	//// TODO divide by 2.0f maybe because 2 is the length of that square water
+	//reflectTexCoord.x = input.reflectionPosition.x / input.reflectionPosition.w / 2.0f + 0.5f;
+	//reflectTexCoord.y = -input.reflectionPosition.y / input.reflectionPosition.w / 2.0f + 0.5f;
 
-	// Calculate the projected refraction texture coordinates
-	refractTexCoord.x = input.refractionPosition.x / input.refractionPosition.w / 2.0f + 0.5f;
-	refractTexCoord.y = -input.refractionPosition.y / input.refractionPosition.w / 2.0f + 0.5f;
+	//// Calculate the projected refraction texture coordinates
+	//refractTexCoord.x = input.refractionPosition.x / input.refractionPosition.w / 2.0f + 0.5f;
+	//refractTexCoord.y = -input.refractionPosition.y / input.refractionPosition.w / 2.0f + 0.5f;
 
-	// Sample the normal from the normal map texture
-	normalMap = normalTexture.Sample( SampleGen, input.tex );
-	
-	// Expand the range of the normal from (0, 1 ) to ( -1, 1 )
-	normal = ( normalMap.xyz * 2.0f ) - 1.0f;
+	//// Sample the normal from the normal map texture
+	//normalMap = normalTexture.Sample( SampleGen, input.tex );
+	//
+	//// Expand the range of the normal from (0, 1 ) to ( -1, 1 )
+	//normal = ( normalMap.xyz * 2.0f ) - 1.0f;
 
-	// Distort the reflection and refraction coordinates by the normal map value for 
-	// creating the rippling effect
-	reflectTexCoord = reflectTexCoord + ( normal.xy * fReflectRefractScale );
-	refractTexCoord = refractTexCoord + ( normal.xy * fReflectRefractScale );
+	//// Distort the reflection and refraction coordinates by the normal map value for 
+	//// creating the rippling effect
+	//reflectTexCoord = reflectTexCoord + ( normal.xy * fReflectRefractScale );
+	//refractTexCoord = refractTexCoord + ( normal.xy * fReflectRefractScale );
 
-	reflectionColor = reflectionTexture.Sample( SampleGen, reflectTexCoord );
-	refractionColor = refractionTexture.Sample( SampleGen, refractTexCoord );
+	//reflectionColor = reflectionTexture.Sample( SampleGen, reflectTexCoord );
+	//refractionColor = refractionTexture.Sample( SampleGen, refractTexCoord );
 
-	// Combine the reflection and refraction pixel using a linear interpolation
-	final_color = lerp( reflectionColor, refractionColor, 0.6f );
+	//// Combine the reflection and refraction pixel using a linear interpolation
+	//final_color = lerp( reflectionColor, refractionColor, 0.6f );
+
+	return final_color;
+}
+
+
+// Refraction shader
+struct REFRAC_PSINPUT
+{
+	float4 position : SV_POSITION;
+	float2 tex : TEXCOORD0;
+	float3 normal : NORMAL;
+	float  clip : SV_ClipDistance0;
+};
+
+Texture2D shaderTexture : register( t3 );
+//SamplerState SampleType;
+
+
+REFRAC_PSINPUT RefractWaterVS( VSINPUT input )
+{
+	REFRAC_PSINPUT output = ( REFRAC_PSINPUT )0;
+
+	input.position.w = 1.0f;
+
+	output.position = mul( input.position, mWorldMatrix );
+	output.position = mul( output.position, mViewMatrix );
+	output.position = mul( output.position, mProjectionMatrix );
+
+	output.tex = input.tex;
+
+	output.normal = mul( input.normal, (float3x3)mWorldMatrix );
+
+	// Normalize the normal
+	output.normal = normalize( output.normal );
+
+	// Set up the clipping plane
+	output.clip = dot( mul( input.position, mWorldMatrix ), clipPlane );
+
+	return output;
+}
+
+float4 RefractWaterPS( REFRAC_PSINPUT input) : SV_TARGET
+{
+	float4 ambientColor = { 0.1, 0.1, 0.1, 0.1 };
+	float4 diffuseColor = { 0.1, 0.1, 0.1, 0.1 };
+	float3 lightDirection = { 0.0, -1.0, 0.0 };
+	float4 textureColor;
+	float3 lightDir;
+	float lightIntensity;
+	float4 final_color;
+
+	// Sample the texture pixel at this location
+	textureColor = shaderTexture.Sample( SampleGen, input.tex );
+	final_color = ambientColor;
+	lightDir = -lightDirection;
+
+	lightIntensity = saturate( dot( input.normal, lightDir ) );
+
+	if( lightIntensity > 0.0f )
+	{
+		final_color += ( diffuseColor * lightIntensity );
+	}
+
+	// Saturate the final light color
+	final_color = saturate( final_color );
+
+	final_color = final_color * textureColor;
 
 	return final_color;
 }
