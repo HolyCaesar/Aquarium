@@ -221,7 +221,7 @@ float4 RenderWaterPS( WATER_PSINPUT input ) : SV_Target
 	float4 reflection_color;
 	float4 disturbance_eyespace;
 
-	////float water_depth;
+	float water_depth = 1.0f;
 	float4 water_color;
 
 	// Control parameters
@@ -344,12 +344,17 @@ float4 RenderWaterPS( WATER_PSINPUT input ) : SV_Target
 	water_color = diffuse_factor * float4( WaterDeepColor, 1 );
 	//water_color.rgb = lerp( CalculateFogColor( pixel_to_light_vector, pixel_to_eye_vector ).rgb, water_color.rgb, min( 1, exp( -length( g_CameraPosition - input.positionWS ) * g_FogDensity ) ) );
 
+	// fading fresnel factor to 0 to soften water surface edges
+	fresnel_factor *= min( 1, water_depth * 5.0 );
+
 	//// fading fresnel factor to 0 to soften water surface edges
 	//fresnel_factor*=min(1,water_depth*5.0);
 
 	//// fading refraction color to water color according to distance that refracted ray travels in water 
 	//refraction_color=lerp(water_color,refraction_color,min(1,1.0*exp(-water_depth/8.0)));
-	final_color = water_color;
+	final_color.rgb = lerp( water_color.rgb, reflection_color.rgb, fresnel_factor );
+	//final_color.rgb += WaterSpecularIntensity * specular_factor * WaterSpecularColor * fresnel_factor;
+	//final_color = water_color;
 	final_color.a = 1;
 	return final_color;
 }

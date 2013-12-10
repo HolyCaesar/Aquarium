@@ -80,6 +80,8 @@ public:
 	void ReCreateBuffers();
 	HRESULT LoadTextures();
 	void Render( CModelViewerCamera *cam, ID3D11DeviceContext* pd3dImmediateContext, XMMATRIX* pRotate, float fTime, SkyBox *sb );
+	void RenderTerrain( CModelViewerCamera *cam, ID3D11DeviceContext* pd3dImmediateContext );
+	void RenderWater( CModelViewerCamera *cam, ID3D11DeviceContext* pd3dImmediateContext );
 	HRESULT CreateTerrain();
 
 	float DynamicTesselationFactor;
@@ -225,6 +227,13 @@ public:
 	* Water Stuff
 	*/
 	ID3D11SamplerState *m_pAnisotropicWrapTexSS;
+
+
+
+
+
+	// Test Stuff
+
 };
 
 float bilinear_interpolation( float fx, float fy, float a, float b, float c, float d );

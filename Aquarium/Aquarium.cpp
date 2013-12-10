@@ -200,7 +200,7 @@ HRESULT CALLBACK OnD3D11ResizedSwapChain( ID3D11Device* pd3dDevice, IDXGISwapCha
 //--------------------------------------------------------------------------------------
 void CALLBACK OnFrameMove( double fTime, float fElapsedTime, void* pUserContext )
 {
-	g_Camera.FrameMove( fElapsedTime );
+	//g_Camera.FrameMove( fElapsedTime );
 	g_MCamera.FrameMove( fElapsedTime );
 	//SpinFirework.Update( fElapsedTime );
 }
