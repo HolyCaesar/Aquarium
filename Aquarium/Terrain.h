@@ -268,6 +268,8 @@ public:
 	ID3D11SamplerState  *m_pSamplerGenTest;
 	ID3D11Buffer		*m_pWaterVertexbufferTest;
 	ID3D11Buffer		*m_pWaterIndexbufferTest;
+
+	CONSTANT_BUFFER_TEST m_CBallInOneTest;
 };
 
 float bilinear_interpolation( float fx, float fy, float a, float b, float c, float d );

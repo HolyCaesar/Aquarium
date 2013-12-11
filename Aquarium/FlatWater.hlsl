@@ -1,4 +1,4 @@
-cbuffer cbBuffer
+cbuffer cbBuffer : register( cb0 )
 {
 	matrix mWorldMatrix;
 	matrix mViewMatrix;
@@ -49,15 +49,15 @@ PSINPUT FlatWaterVS( VSINPUT input )
 
 	output.tex = input.tex;
 
-	//reflectProjectWorld = mul( mRefelctionMatrix, mProjectionMatrix );
-	//reflectProjectWorld = mul( mWorldMatrix, reflectProjectWorld );
+	reflectProjectWorld = mul( mWorldMatrix, mRefelctionMatrix );
+	reflectProjectWorld = mul( reflectProjectWorld, mProjectionMatrix );
 
-	//output.reflectionPosition = mul( input.position, reflectProjectWorld );
+	output.reflectionPosition = mul( input.position, reflectProjectWorld );
 
 	viewProjectWorld = mul( mViewMatrix, mProjectionMatrix );
 	viewProjectWorld = mul( mWorldMatrix, viewProjectWorld );
 
-	//output.refractionPosition = mul( input.position, viewProjectWorld );
+	output.refractionPosition = mul( input.position, viewProjectWorld );
 
 	return output;
 }
@@ -73,34 +73,35 @@ float4 FlatWaterPS( PSINPUT input ) : SV_TARGET
 	float4 reflectionColor;
 	float4 refractionColor;
 
-	//// Move the texture of water
-	//input.tex.y += fWaterTranslation;
+	// Move the texture of water
+	input.tex.y += fWaterTranslation;
 
-	//// Calculate the projected reflectiont texture coordinates
-	//// TODO divide by 2.0f maybe because 2 is the length of that square water
-	//reflectTexCoord.x = input.reflectionPosition.x / input.reflectionPosition.w / 2.0f + 0.5f;
-	//reflectTexCoord.y = -input.reflectionPosition.y / input.reflectionPosition.w / 2.0f + 0.5f;
+	// Calculate the projected reflectiont texture coordinates
+	// TODO divide by 2.0f maybe because 2 is the length of that square water
+	reflectTexCoord.x = input.reflectionPosition.x / input.reflectionPosition.w / 2.0f + 0.5f;
+	reflectTexCoord.y = -input.reflectionPosition.y / input.reflectionPosition.w / 2.0f + 0.5f;
 
-	//// Calculate the projected refraction texture coordinates
-	//refractTexCoord.x = input.refractionPosition.x / input.refractionPosition.w / 2.0f + 0.5f;
-	//refractTexCoord.y = -input.refractionPosition.y / input.refractionPosition.w / 2.0f + 0.5f;
+	// Calculate the projected refraction texture coordinates
+	refractTexCoord.x = input.refractionPosition.x / input.refractionPosition.w / 2.0f + 0.5f;
+	refractTexCoord.y = -input.refractionPosition.y / input.refractionPosition.w / 2.0f + 0.5f;
 
-	//// Sample the normal from the normal map texture
-	//normalMap = normalTexture.Sample( SampleGen, input.tex );
-	//
-	//// Expand the range of the normal from (0, 1 ) to ( -1, 1 )
-	//normal = ( normalMap.xyz * 2.0f ) - 1.0f;
+	// Sample the normal from the normal map texture
+	normalMap = normalTexture.Sample( SampleGen, input.tex );
+	
+	// Expand the range of the normal from (0, 1 ) to ( -1, 1 )
+	normal = ( normalMap.xyz * 2.0f ) - 1.0f;
 
-	//// Distort the reflection and refraction coordinates by the normal map value for 
-	//// creating the rippling effect
-	//reflectTexCoord = reflectTexCoord + ( normal.xy * fReflectRefractScale );
-	//refractTexCoord = refractTexCoord + ( normal.xy * fReflectRefractScale );
+	// Distort the reflection and refraction coordinates by the normal map value for 
+	// creating the rippling effect
+	reflectTexCoord = reflectTexCoord + ( normal.xy * fReflectRefractScale );
+	refractTexCoord = refractTexCoord + ( normal.xy * fReflectRefractScale );
 
-	//reflectionColor = reflectionTexture.Sample( SampleGen, reflectTexCoord );
+	reflectionColor = reflectionTexture.Sample( SampleGen, reflectTexCoord );
 	//refractionColor = refractionTexture.Sample( SampleGen, refractTexCoord );
 
-	//// Combine the reflection and refraction pixel using a linear interpolation
+	// Combine the reflection and refraction pixel using a linear interpolation
 	//final_color = lerp( reflectionColor, refractionColor, 0.6f );
+	final_color = reflectionColor * 0.6;
 
 	return final_color;
 }
@@ -170,4 +171,52 @@ float4 RefractWaterPS( REFRAC_PSINPUT input) : SV_TARGET
 	final_color = final_color * textureColor;
 
 	return final_color;
+}
+
+cbuffer QuadObject : register( cb1 )
+{
+    static const float2 QuadVertices[4] =
+    {
+        {-1.0, -1.0},
+        { 1.0, -1.0},
+        {-1.0,  1.0},
+        { 1.0,  1.0}
+    };
+
+    static const float2 QuadTexCoordinates[4] =
+    {
+        {0.0, 1.0},
+        {1.0, 1.0},
+        {0.0, 0.0},
+        {1.0, 0.0}
+    };
+}
+
+struct PSIn_Quad
+{
+    float4 position     : SV_Position;
+    float2 texcoord     : TEXCOORD0;
+};
+
+PSIn_Quad FullScreenQuadVS( uint VertexId: SV_VertexID )
+{
+    PSIn_Quad output;
+
+	output.position = float4( QuadVertices[ VertexId ], 0, 1 );
+    output.texcoord = QuadTexCoordinates[ VertexId ];
+    
+    return output;
+}
+
+float4 MainToBackBufferPS(PSIn_Quad input) : SV_Target
+{
+	float4 color;
+	float MainBufferSizeMultiplier = 1.1;
+	color.rgb = shaderTexture.SampleLevel( SampleGen, float2( ( input.texcoord.x - 0.5 ) / MainBufferSizeMultiplier + 0.5f, ( input.texcoord.y - 0.5 ) / MainBufferSizeMultiplier + 0.5f ), 0 ).rgb;
+	//color = shaderTexture.Sample( SampleGen, input.texcoord );
+	color.a=0;
+
+	//color = float4( 1.0, 0.0, 0.0, 0.0 );
+
+	return color;
 }

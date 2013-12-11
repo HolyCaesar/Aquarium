@@ -1602,6 +1602,14 @@ HRESULT Terrain::TestInitialization( ID3D11Device* device )
 	pVSBlob->Release();
 	pPSBlob->Release();
 
+	V_RETURN( DXUTCompileFromFile( L"FlatWater.hlsl", nullptr, "FullScreenQuadVS", "vs_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &pVSBlob ) );
+	V_RETURN( device->CreateVertexShader( pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &m_pRenderMainVS ) );
+	V_RETURN( DXUTCompileFromFile( L"FlatWater.hlsl", nullptr, "MainToBackBufferPS", "ps_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &pPSBlob ) );
+	V_RETURN( device->CreatePixelShader( pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), NULL, &m_pRenderMainPS ) );
+
+	pVSBlob->Release();
+	pPSBlob->Release();
+
 	D3D11_BUFFER_DESC bd;
 	bd.Usage = D3D11_USAGE_DEFAULT;
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -1611,7 +1619,6 @@ HRESULT Terrain::TestInitialization( ID3D11Device* device )
 	bd.StructureByteStride = 0;
 	V_RETURN( m_pDevice->CreateBuffer( &bd, NULL, &m_pCBallInOne ) );
 	DXUT_SetDebugName( m_pCBallInOne, "m_pCBallInOne" );
-
 
 	/*
 	* Create simple scene
@@ -1666,7 +1673,7 @@ HRESULT Terrain::TestInitialization( ID3D11Device* device )
 	if( !pVertData )
 		return E_OUTOFMEMORY;
 	TERRAIN_VERTEX *pVertices = pVertData;
-	float texInterval = 50.0 / ( waterW + 1 );
+	float texInterval = 100.0 / ( waterW + 1 );
 	for( int y = 0; y < waterW + 1; y++ )
 	{
 		for( int x = 0; x < waterW + 1; x++ )
@@ -1705,6 +1712,8 @@ void Terrain::RenderTestStuff(  CModelViewerCamera *cam, ID3D11DeviceContext* pd
 	UINT offset = 0;
 	UINT cRT = 1;
 
+	float water_height = 2.0f;
+
 	float ClearColor[ 4 ] = { 0.176f, 0.196f, 0.667f, 0.0f };
 	float RefractionClearColor[ 4 ] = { 0.5f, 0.5f, 0.5f, 1.0f };
 
@@ -1712,32 +1721,43 @@ void Terrain::RenderTestStuff(  CModelViewerCamera *cam, ID3D11DeviceContext* pd
 	ID3D11DepthStencilView  *backBuffer = DXUTGetD3D11DepthStencilView();
 	D3D11_VIEWPORT currentViewport;
 	D3D11_VIEWPORT reflection_Viewport;
+	D3D11_VIEWPORT refraction_Viewport;
 
-	reflection_Viewport.Width=(float)BackbufferWidth * reflection_buffer_size_multiplier;
-	reflection_Viewport.Height=(float)BackbufferHeight * reflection_buffer_size_multiplier;
-	reflection_Viewport.MaxDepth=1;
-	reflection_Viewport.MinDepth=0;
-	reflection_Viewport.TopLeftX=0;
-	reflection_Viewport.TopLeftY=0;
+	reflection_Viewport.Width = (float)BackbufferWidth * reflection_buffer_size_multiplier;
+	reflection_Viewport.Height = (float)BackbufferHeight * reflection_buffer_size_multiplier;
+	reflection_Viewport.MaxDepth = 1;
+	reflection_Viewport.MinDepth = 0;
+	reflection_Viewport.TopLeftX = 0;
+	reflection_Viewport.TopLeftY = 0;
+
+	refraction_Viewport.Width = (float)BackbufferWidth * refraction_buffer_size_multiplier;
+	refraction_Viewport.Height = (float)BackbufferHeight * refraction_buffer_size_multiplier;
+	refraction_Viewport.MaxDepth = 1;
+	refraction_Viewport.MinDepth = 0;
+	refraction_Viewport.TopLeftX = 0;
+	refraction_Viewport.TopLeftY = 0;
 
 	XMMATRIX view = cam->GetViewMatrix();
 	XMMATRIX world = cam->GetWorldMatrix();
 	XMMATRIX proj = cam->GetProjMatrix();
-	m_CBallInOne.mView = XMMatrixTranspose( view );
-	m_CBallInOne.mWorld = XMMatrixTranspose( world);
-	m_CBallInOne.mProjection = XMMatrixTranspose( proj );
+	m_CBallInOneTest.mView = XMMatrixTranspose( view );
+	m_CBallInOneTest.mWorld = XMMatrixTranspose( world);
+	m_CBallInOneTest.mProjection = XMMatrixTranspose( proj );
 	//m_CBallInOne.mWaterTexcoordShift = XMFLOAT2( fTime * 1.5f, fTime * 0.75 );
 	//m_CBallInOne.fScreenSizeInv = XMFLOAT2( 1.0f / ( BackbufferWidth * main_buffer_size_multiplier ), 1.0f / ( BackbufferHeight * main_buffer_size_multiplier ) );
-	pd3dImmediateContext->UpdateSubresource( m_pCBallInOne, 0, NULL, &m_CBallInOne, 0, 0 );
 
 	// Saving scene color buffer and back buffer to constants
 	pd3dImmediateContext->RSGetViewports( &cRT, &currentViewport );
 	pd3dImmediateContext->OMGetRenderTargets( 1, &colorBuffer, &backBuffer );
-
 	/**********************************************
 	* Render refraction to texture
 	***********************************************/
-
+	//XMFLOAT4 clipPlane;
+	//clipPlane = XMFLOAT4( 0.0f, -1.0f, 0.0f, water_height + 0.1f );
+	//pd3dImmediateContext->RSSetViewports( 1, &refraction_Viewport );
+	//pd3dImmediateContext->OMSetRenderTargets( 1, &m_pRefraction_color_resourceRTV, m_pRefraction_depth_resourceDSV );
+	//pd3dImmediateContext->ClearRenderTargetView( m_pRefraction_color_resourceRTV, RefractionClearColor );
+	//pd3dImmediateContext->ClearDepthStencilView( m_pRefraction_depth_resourceDSV, D3D11_CLEAR_DEPTH, 1.0, 0 );
 
 
 	/**********************************************
@@ -1752,7 +1772,7 @@ void Terrain::RenderTestStuff(  CModelViewerCamera *cam, ID3D11DeviceContext* pd
 	// Setup reflection view
 	XMFLOAT3 up, position, lookAt;
 	float radians;
-	float water_height = 2.0f;
+	
 
 	// Setup the vector that points upwards.
 	up.x = 0.0f;
@@ -1762,6 +1782,12 @@ void Terrain::RenderTestStuff(  CModelViewerCamera *cam, ID3D11DeviceContext* pd
 	// Setup the position of the camera in the world.
 	// For planar reflection invert the Y position of the camera.
 	XMStoreFloat3( &position, cam->GetEyePt() );
+	XMStoreFloat3( &lookAt, cam->GetLookAtPt() );
+
+	XMFLOAT3 CameraDir = XMFLOAT3( lookAt.x - position.x, lookAt.y - position.y, lookAt.z - position.z );
+	CameraDir.y = CameraDir.y * -1;
+	XMStoreFloat3( &CameraDir, XMVector3Normalize( XMLoadFloat3( &CameraDir ) ) );
+
 	position.x = position.x;
 	position.y = -position.y + ( water_height * 2.0f );
 	position.z = position.z;
@@ -1774,6 +1800,15 @@ void Terrain::RenderTestStuff(  CModelViewerCamera *cam, ID3D11DeviceContext* pd
 	lookAt.x = lookAt.x;
 	lookAt.y = -lookAt.y + ( water_height * 2.0f );
 	lookAt.z = lookAt.z;
+
+	//lookAt.x = sinf( radians ) + position.x;
+	//lookAt.y = position.y;
+	//lookAt.z = cosf( radians ) + position.z;
+
+	//lookAt.x = position.x + 2 * CameraDir.x;
+	//lookAt.y = position.y + 2 * CameraDir.y;
+	//lookAt.z = position.z + 2 * CameraDir.z;
+
 
 	// Create the view matrix from the three vectors.
 	XMMATRIX reflectionViewMatrix, mViewProj;
@@ -1792,7 +1827,13 @@ void Terrain::RenderTestStuff(  CModelViewerCamera *cam, ID3D11DeviceContext* pd
 
 	/**********************************************
 	* Render scene out
-	***********************************************/
+	**********************************************/
+	// Update Constant buffer
+	m_CBallInOneTest.mRefelctionMatrix = /*reflectionViewMatrix*/ XMMatrixTranspose( reflectionViewMatrix );
+	m_CBallInOneTest.fReflectRefractScale = 0.01;
+	pd3dImmediateContext->UpdateSubresource( m_pCBallInOne, 0, NULL, &m_CBallInOneTest, 0, 0 );
+
+
 	pd3dImmediateContext->IASetInputLayout( m_pTriangleIILTest );
 	pd3dImmediateContext->IASetVertexBuffers( 0, 1, &m_pWaterVertexbufferTest, &stride, &offset );
 	pd3dImmediateContext->IASetIndexBuffer( m_pWaterIndexbufferTest, DXGI_FORMAT_R32_UINT, 0 );
@@ -1804,10 +1845,23 @@ void Terrain::RenderTestStuff(  CModelViewerCamera *cam, ID3D11DeviceContext* pd
 	pd3dImmediateContext->VSSetConstantBuffers( 0, 1, &m_pCBallInOne );
 	pd3dImmediateContext->PSSetShader( m_pRenderWaterTestPS, NULL, 0 );
 	pd3dImmediateContext->PSSetShaderResources( 0, 1, &m_pReflection_color_resourceSRV );
+	pd3dImmediateContext->PSSetShaderResources( 2, 1, &m_pWater_bump_textureSRV );
 	pd3dImmediateContext->DrawIndexed( m_iWaterIndexCount, 0, 0 );
 
 	// Render Sky
 	mViewProj = XMMatrixMultiply( world, view );
 	mViewProj = XMMatrixMultiply( mViewProj, proj );
 	sb->RenderSkyBox( &mViewProj, pd3dImmediateContext );
+
+
+
+
+
+	//pd3dImmediateContext->IASetInputLayout( m_pTriangleIILTest );
+	//pd3dImmediateContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
+	//pd3dImmediateContext->RSSetState( m_pRasterizerState );
+	//pd3dImmediateContext->VSSetShader( m_pRenderMainVS, NULL, 0 );
+	//pd3dImmediateContext->PSSetShader( m_pRenderMainPS, NULL, 0 );
+	//pd3dImmediateContext->PSSetShaderResources( 4, 1, &m_pReflection_color_resourceSRV /*m_pReflection_color_resourceSRV*/ );
+	//pd3dImmediateContext->Draw( 4, 0 );
 }
