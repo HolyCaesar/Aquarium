@@ -58,18 +58,21 @@ class Terrain
 		XMMATRIX mProjection;
 
 		// Control variable
-		XMFLOAT2 mWaterTexcoordShift;
-
+		XMMATRIX mReflectionMatrix;
 		XMMATRIX mModelViewMatrix;
 		XMMATRIX mModelViewProjectionMatrix;
 		XMMATRIX mModelViewProjectionMatrixInv;
-		XMVECTOR mCameraPosition;
-		XMVECTOR mCameraDirection;
 		XMMATRIX mLightModelViewProjectionMatrix;
 		XMMATRIX mLightModelViewProjectionMatrixInv;
+		XMFLOAT4 fClipPlane;
+		XMFLOAT3 mCameraPosition;
 		float fHalfSpaceCullSign;
+		XMFLOAT3 mCameraDirection;
 		float fHalfSpaceCullPosition;
 		XMFLOAT2 fScreenSizeInv;
+		XMFLOAT2 mWaterTexcoordShift;
+		float    fWaterDepth;
+		float    padding[ 3 ];
 	};
 public:
 	Terrain(void);

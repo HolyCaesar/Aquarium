@@ -49,8 +49,8 @@ PSINPUT FlatWaterVS( VSINPUT input )
 
 	output.tex = input.tex;
 
-	reflectProjectWorld = mul( mWorldMatrix, mRefelctionMatrix );
-	reflectProjectWorld = mul( reflectProjectWorld, mProjectionMatrix );
+	//reflectProjectWorld = mul( mWorldMatrix, mRefelctionMatrix );
+	reflectProjectWorld = mul( mRefelctionMatrix, mProjectionMatrix );
 
 	output.reflectionPosition = mul( input.position, reflectProjectWorld );
 
@@ -80,6 +80,7 @@ float4 FlatWaterPS( PSINPUT input ) : SV_TARGET
 	// TODO divide by 2.0f maybe because 2 is the length of that square water
 	reflectTexCoord.x = input.reflectionPosition.x / input.reflectionPosition.w / 2.0f + 0.5f;
 	reflectTexCoord.y = -input.reflectionPosition.y / input.reflectionPosition.w / 2.0f + 0.5f;
+	//reflectTexCoord.y = 1 - reflectTexCoord.y;
 
 	// Calculate the projected refraction texture coordinates
 	refractTexCoord.x = input.refractionPosition.x / input.refractionPosition.w / 2.0f + 0.5f;
@@ -101,7 +102,7 @@ float4 FlatWaterPS( PSINPUT input ) : SV_TARGET
 
 	// Combine the reflection and refraction pixel using a linear interpolation
 	//final_color = lerp( reflectionColor, refractionColor, 0.6f );
-	final_color = reflectionColor * 0.6;
+	final_color = reflectionColor;
 
 	return final_color;
 }

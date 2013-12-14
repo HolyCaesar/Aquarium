@@ -141,58 +141,58 @@ HRESULT Terrain::CreateRenderState( ID3D11Device* device )
 HRESULT Terrain::Initialize( ID3D11Device* device )
 {
 	HRESULT hr = S_OK;
-	//m_pDevice = device;
+	m_pDevice = device;
 
-	//const D3D11_INPUT_ELEMENT_DESC TriangleLayout[] = 
-	//{
-	//	{ "POSITION",  0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	//	{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	//	{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT,  D3D11_INPUT_PER_VERTEX_DATA, 0 }
-	//};
+	const D3D11_INPUT_ELEMENT_DESC TriangleLayout[] = 
+	{
+		{ "POSITION",  0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT,  D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
 
-	//ID3DBlob* pVSBlob = NULL, *pPSBlob = NULL;
-	//V_RETURN( DXUTCompileFromFile( L"Terrain.hlsl", nullptr, "RenderTerrainVS", "vs_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &pVSBlob ) );
-	//V_RETURN( device->CreateVertexShader( pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &m_pRenderTerrainVS ) );
-	//V_RETURN( device->CreateInputLayout( TriangleLayout, ARRAYSIZE( TriangleLayout ), pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), &m_pHeightfield_inputlayout ) );
-	////V_RETURN( device->CreateInputLayout( TriangleLayout, ARRAYSIZE( TerrainLayout ), pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), &m_pHeightfield_inputlayout ) );
-	//V_RETURN( DXUTCompileFromFile( L"Terrain.hlsl", nullptr, "RenderTerrainPS", "ps_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &pPSBlob ) );
-	//V_RETURN( device->CreatePixelShader( pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), NULL, &m_pRenderTerrainPS ) );
+	ID3DBlob* pVSBlob = NULL, *pPSBlob = NULL;
+	V_RETURN( DXUTCompileFromFile( L"Terrain.hlsl", nullptr, "RenderTerrainVS", "vs_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &pVSBlob ) );
+	V_RETURN( device->CreateVertexShader( pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &m_pRenderTerrainVS ) );
+	V_RETURN( device->CreateInputLayout( TriangleLayout, ARRAYSIZE( TriangleLayout ), pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), &m_pHeightfield_inputlayout ) );
+	//V_RETURN( device->CreateInputLayout( TriangleLayout, ARRAYSIZE( TerrainLayout ), pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), &m_pHeightfield_inputlayout ) );
+	V_RETURN( DXUTCompileFromFile( L"Terrain.hlsl", nullptr, "RenderTerrainPS", "ps_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &pPSBlob ) );
+	V_RETURN( device->CreatePixelShader( pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), NULL, &m_pRenderTerrainPS ) );
 
-	//pVSBlob->Release();
-	//pPSBlob->Release();
+	pVSBlob->Release();
+	pPSBlob->Release();
 
-	//V_RETURN( DXUTCompileFromFile( L"Terrain.hlsl", nullptr, "RenderWaterVS", "vs_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &pVSBlob ) );
-	//V_RETURN( device->CreateVertexShader( pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &m_pRenderWaterVS ) );
-	//V_RETURN( device->CreateInputLayout( TriangleLayout, ARRAYSIZE( TriangleLayout ), pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), &m_pTrianglestrip_inputlayout ) );
-	//V_RETURN( DXUTCompileFromFile( L"Terrain.hlsl", nullptr, "RenderWaterPS", "ps_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &pPSBlob ) );
-	//V_RETURN( device->CreatePixelShader( pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), NULL, &m_pRenderWaterPS ) );
+	V_RETURN( DXUTCompileFromFile( L"Terrain.hlsl", nullptr, "RenderWaterVS", "vs_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &pVSBlob ) );
+	V_RETURN( device->CreateVertexShader( pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &m_pRenderWaterVS ) );
+	V_RETURN( device->CreateInputLayout( TriangleLayout, ARRAYSIZE( TriangleLayout ), pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), &m_pTrianglestrip_inputlayout ) );
+	V_RETURN( DXUTCompileFromFile( L"Terrain.hlsl", nullptr, "RenderWaterPS", "ps_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &pPSBlob ) );
+	V_RETURN( device->CreatePixelShader( pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), NULL, &m_pRenderWaterPS ) );
 
-	//pVSBlob->Release();
-	//pPSBlob->Release();
+	pVSBlob->Release();
+	pPSBlob->Release();
 
-	//V_RETURN( DXUTCompileFromFile( L"Terrain.hlsl", nullptr, "FullScreenQuadVS", "vs_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &pVSBlob ) );
-	//V_RETURN( device->CreateVertexShader( pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &m_pRenderMainVS ) );
-	//V_RETURN( DXUTCompileFromFile( L"Terrain.hlsl", nullptr, "MainToBackBufferPS", "ps_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &pPSBlob ) );
-	//V_RETURN( device->CreatePixelShader( pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), NULL, &m_pRenderMainPS ) );
+	V_RETURN( DXUTCompileFromFile( L"Terrain.hlsl", nullptr, "FullScreenQuadVS", "vs_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &pVSBlob ) );
+	V_RETURN( device->CreateVertexShader( pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &m_pRenderMainVS ) );
+	V_RETURN( DXUTCompileFromFile( L"Terrain.hlsl", nullptr, "MainToBackBufferPS", "ps_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &pPSBlob ) );
+	V_RETURN( device->CreatePixelShader( pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), NULL, &m_pRenderMainPS ) );
 
-	//pVSBlob->Release();
-	//pPSBlob->Release();
+	pVSBlob->Release();
+	pPSBlob->Release();
 
-	//D3D11_BUFFER_DESC bd;
-	//bd.Usage = D3D11_USAGE_DEFAULT;
-	//bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	//bd.ByteWidth = sizeof( CONSTANT_BUFFER );
-	//bd.CPUAccessFlags = 0;
-	//bd.MiscFlags = 0;
-	//bd.StructureByteStride = 0;
-	//V_RETURN( m_pDevice->CreateBuffer( &bd, NULL, &m_pCBallInOne ) );
-	//DXUT_SetDebugName( m_pCBallInOne, "m_pCBallInOne");
+	D3D11_BUFFER_DESC bd;
+	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	bd.ByteWidth = sizeof( CONSTANT_BUFFER );
+	bd.CPUAccessFlags = 0;
+	bd.MiscFlags = 0;
+	bd.StructureByteStride = 0;
+	V_RETURN( m_pDevice->CreateBuffer( &bd, NULL, &m_pCBallInOne ) );
+	DXUT_SetDebugName( m_pCBallInOne, "m_pCBallInOne");
 
-	//hr = CreateTerrain();
-	//hr = CreateRenderState( device );
-	//hr = LoadTextures();
+	hr = CreateTerrain();
+	hr = CreateRenderState( device );
+	hr = LoadTextures();
 
-	V_RETURN( TestInitialization( device ) );
+	//V_RETURN( TestInitialization( device ) );
 
 	return hr;
 }
@@ -1110,8 +1110,8 @@ HRESULT Terrain::CreateTerrain()
 	delete [] pVertData;
 
 	// Water vertex ( a square water )
-	unsigned int waterW = ( terrain_gridpoints / 2 );
-	unsigned int waterH = ( terrain_gridpoints / 2 );
+	unsigned int waterW = ( terrain_gridpoints  );
+	unsigned int waterH = ( terrain_gridpoints  );
 	g_dwNumIndices = waterW * waterH * 6;
 	ibDesc.ByteWidth = g_dwNumIndices * sizeof( unsigned int );
 	ibDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -1154,7 +1154,7 @@ HRESULT Terrain::CreateTerrain()
 	if( !pVertData )
 		return E_OUTOFMEMORY;
 	pVertices = pVertData;
-	texInterval = 50.0 / ( waterW + 1 );
+	texInterval = 1.0 / ( waterW + 1 );
 	for( int y = 0; y < waterW + 1; y++ )
 	{
 		for( int x = 0; x < waterW + 1; x++ )
@@ -1185,126 +1185,132 @@ HRESULT Terrain::CreateTerrain()
 
 void Terrain::Render( CModelViewerCamera *cam, ID3D11DeviceContext* pd3dImmediateContext, XMMATRIX* pRotate, float fTime, SkyBox *sb )
 {
-	//UINT stride = sizeof( TERRAIN_VERTEX );
-	//UINT offset = 0;
-	//UINT cRT = 1;
+	UINT stride = sizeof( TERRAIN_VERTEX );
+	UINT offset = 0;
+	UINT cRT = 1;
 
-	//// Multi Pass rendering
-	//ID3D11RenderTargetView *colorBuffer = DXUTGetD3D11RenderTargetView();
-	//ID3D11DepthStencilView  *backBuffer = DXUTGetD3D11DepthStencilView();
-	//D3D11_VIEWPORT currentViewport;
-	//D3D11_VIEWPORT reflection_Viewport;
-	//D3D11_VIEWPORT refraction_Viewport;
-	//D3D11_VIEWPORT shadowmap_resource_viewport;
-	//D3D11_VIEWPORT water_normalmap_resource_viewport;
-	//D3D11_VIEWPORT main_Viewport;
+	// Multi Pass rendering
+	ID3D11RenderTargetView *colorBuffer = DXUTGetD3D11RenderTargetView();
+	ID3D11DepthStencilView  *backBuffer = DXUTGetD3D11DepthStencilView();
+	D3D11_VIEWPORT currentViewport;
+	D3D11_VIEWPORT reflection_Viewport;
+	D3D11_VIEWPORT refraction_Viewport;
+	D3D11_VIEWPORT shadowmap_resource_viewport;
+	D3D11_VIEWPORT water_normalmap_resource_viewport;
+	D3D11_VIEWPORT main_Viewport;
 
-	//float ClearColor[ 4 ] = { 0.176f, 0.196f, 0.667f, 0.0f };
-	//float RefractionClearColor[ 4 ] = { 0.5f, 0.5f, 0.5f, 1.0f };
+	float ClearColor[ 4 ] = { 0.176f, 0.196f, 0.667f, 0.0f };
+	float RefractionClearColor[ 4 ] = { 0.5f, 0.5f, 0.5f, 1.0f };
 
-	//reflection_Viewport.Width=(float)BackbufferWidth*reflection_buffer_size_multiplier;
-	//reflection_Viewport.Height=(float)BackbufferHeight*reflection_buffer_size_multiplier;
-	//reflection_Viewport.MaxDepth=1;
-	//reflection_Viewport.MinDepth=0;
-	//reflection_Viewport.TopLeftX=0;
-	//reflection_Viewport.TopLeftY=0;
+	reflection_Viewport.Width=(float)BackbufferWidth*reflection_buffer_size_multiplier;
+	reflection_Viewport.Height=(float)BackbufferHeight*reflection_buffer_size_multiplier;
+	reflection_Viewport.MaxDepth=1;
+	reflection_Viewport.MinDepth=0;
+	reflection_Viewport.TopLeftX=0;
+	reflection_Viewport.TopLeftY=0;
 
-	//refraction_Viewport.Width=(float)BackbufferWidth*refraction_buffer_size_multiplier;
-	//refraction_Viewport.Height=(float)BackbufferHeight*refraction_buffer_size_multiplier;
-	//refraction_Viewport.MaxDepth=1;
-	//refraction_Viewport.MinDepth=0;
-	//refraction_Viewport.TopLeftX=0;
-	//refraction_Viewport.TopLeftY=0;
+	refraction_Viewport.Width=(float)BackbufferWidth*refraction_buffer_size_multiplier;
+	refraction_Viewport.Height=(float)BackbufferHeight*refraction_buffer_size_multiplier;
+	refraction_Viewport.MaxDepth=1;
+	refraction_Viewport.MinDepth=0;
+	refraction_Viewport.TopLeftX=0;
+	refraction_Viewport.TopLeftY=0;
 
-	//main_Viewport.Width=(float)BackbufferWidth*main_buffer_size_multiplier;
-	//main_Viewport.Height=(float)BackbufferHeight*main_buffer_size_multiplier;
-	//main_Viewport.MaxDepth=1;
-	//main_Viewport.MinDepth=0;
-	//main_Viewport.TopLeftX=0;
-	//main_Viewport.TopLeftY=0;
+	main_Viewport.Width=(float)BackbufferWidth*main_buffer_size_multiplier;
+	main_Viewport.Height=(float)BackbufferHeight*main_buffer_size_multiplier;
+	main_Viewport.MaxDepth=1;
+	main_Viewport.MinDepth=0;
+	main_Viewport.TopLeftX=0;
+	main_Viewport.TopLeftY=0;
 
-	//shadowmap_resource_viewport.Width=shadowmap_resource_buffer_size_xy;
-	//shadowmap_resource_viewport.Height=shadowmap_resource_buffer_size_xy;
-	//shadowmap_resource_viewport.MaxDepth=1;
-	//shadowmap_resource_viewport.MinDepth=0;
-	//shadowmap_resource_viewport.TopLeftX=0;
-	//shadowmap_resource_viewport.TopLeftY=0;
+	shadowmap_resource_viewport.Width=shadowmap_resource_buffer_size_xy;
+	shadowmap_resource_viewport.Height=shadowmap_resource_buffer_size_xy;
+	shadowmap_resource_viewport.MaxDepth=1;
+	shadowmap_resource_viewport.MinDepth=0;
+	shadowmap_resource_viewport.TopLeftX=0;
+	shadowmap_resource_viewport.TopLeftY=0;
 
-	//water_normalmap_resource_viewport.Width = water_normalmap_resource_buffer_size_xy;
-	//water_normalmap_resource_viewport.Height = water_normalmap_resource_buffer_size_xy;
-	//water_normalmap_resource_viewport.MaxDepth = 1;
-	//water_normalmap_resource_viewport.MinDepth = 0;
-	//water_normalmap_resource_viewport.TopLeftX = 0;
-	//water_normalmap_resource_viewport.TopLeftY = 0;
+	water_normalmap_resource_viewport.Width = water_normalmap_resource_buffer_size_xy;
+	water_normalmap_resource_viewport.Height = water_normalmap_resource_buffer_size_xy;
+	water_normalmap_resource_viewport.MaxDepth = 1;
+	water_normalmap_resource_viewport.MinDepth = 0;
+	water_normalmap_resource_viewport.TopLeftX = 0;
+	water_normalmap_resource_viewport.TopLeftY = 0;
 
-	//XMMATRIX view = cam->GetViewMatrix();
-	//XMMATRIX world = cam->GetWorldMatrix();
-	//XMMATRIX proj = cam->GetProjMatrix();
-	//XMMATRIX mWorldViewProjection;
-	//mWorldViewProjection = XMMatrixMultiply( view, proj );
-	////world = world*(*pRotate);
-	//m_CBallInOne.mView = XMMatrixTranspose( view );
-	//m_CBallInOne.mWorld = XMMatrixTranspose( world);
-	//m_CBallInOne.mProjection = XMMatrixTranspose( cam->GetProjMatrix() );
-	//m_CBallInOne.mWaterTexcoordShift = XMFLOAT2( fTime * 1.5f, fTime * 0.75 );
-	//m_CBallInOne.fScreenSizeInv = XMFLOAT2( 1.0f / ( BackbufferWidth * main_buffer_size_multiplier ), 1.0f / ( BackbufferHeight * main_buffer_size_multiplier ) );
-	//pd3dImmediateContext->UpdateSubresource( m_pCBallInOne, 0, NULL, &m_CBallInOne, 0, 0 );
+	XMMATRIX view = cam->GetViewMatrix();
+	XMMATRIX world = cam->GetWorldMatrix();
+	XMMATRIX proj = cam->GetProjMatrix();
+	XMMATRIX mWorldViewProjection;
+	mWorldViewProjection = XMMatrixMultiply( view, proj );
 
-	//// Saving scene color buffer and back buffer to constants
-	//pd3dImmediateContext->RSGetViewports( &cRT, &currentViewport );
-	//pd3dImmediateContext->OMGetRenderTargets( 1, &colorBuffer, &backBuffer );
+	m_CBallInOne.mView = XMMatrixTranspose( view );
+	m_CBallInOne.mWorld = XMMatrixTranspose( world);
+	m_CBallInOne.mProjection = XMMatrixTranspose( cam->GetProjMatrix() );
+	m_CBallInOne.mWaterTexcoordShift = XMFLOAT2( fTime * 1.5f, fTime * 0.75 );
+	m_CBallInOne.fScreenSizeInv = XMFLOAT2( 1.0f / ( BackbufferWidth * main_buffer_size_multiplier ), 1.0f / ( BackbufferHeight * main_buffer_size_multiplier ) );
+	m_CBallInOne.fWaterDepth = 2.0f;
+	pd3dImmediateContext->UpdateSubresource( m_pCBallInOne, 0, NULL, &m_CBallInOne, 0, 0 );
+	// Saving scene color buffer and back buffer to constants
+	pd3dImmediateContext->RSGetViewports( &cRT, &currentViewport );
+	pd3dImmediateContext->OMGetRenderTargets( 1, &colorBuffer, &backBuffer );
 
-	//// TODO shadow_map rendertarget
+	// TODO shadow_map rendertarget
 
 
-	//// Setting up reflection rendertarget
-	//pd3dImmediateContext->RSSetViewports( 1, &reflection_Viewport );
-	//pd3dImmediateContext->OMSetRenderTargets( 1, &m_pReflection_color_resourceRTV, m_pReflection_depth_resourceDSV );
-	//pd3dImmediateContext->ClearRenderTargetView( m_pReflection_color_resourceRTV, RefractionClearColor );
-	//pd3dImmediateContext->ClearDepthStencilView( m_pReflection_depth_resourceDSV, D3D11_CLEAR_DEPTH, 1.0, 0 );
+	// Setting up reflection rendertarget
+	pd3dImmediateContext->RSSetViewports( 1, &reflection_Viewport );
+	pd3dImmediateContext->OMSetRenderTargets( 1, &m_pReflection_color_resourceRTV, m_pReflection_depth_resourceDSV );
+	pd3dImmediateContext->ClearRenderTargetView( m_pReflection_color_resourceRTV, RefractionClearColor );
+	pd3dImmediateContext->ClearDepthStencilView( m_pReflection_depth_resourceDSV, D3D11_CLEAR_DEPTH, 1.0, 0 );
 
-	//SetupReflectionView( pd3dImmediateContext, cam );
+	SetupReflectionView( pd3dImmediateContext, cam );
 
-	//// Rendering sky to reflection RT
-	//sb->RenderSkyBox( &XMMatrixInverse( NULL, view ), pd3dImmediateContext );
+	// Rendering sky to reflection RT
+	sb->RenderSkyBox( &XMMatrixTranspose( m_CBallInOne.mModelViewProjectionMatrix ), pd3dImmediateContext );
+	
 
-	//// Rendering terrain to reflection RT
-	////tex_variable=pEffect->GetVariableByName("g_DepthTexture")->AsShaderResource();
-	////tex_variable->SetResource(shadowmap_resourceSRV);
+	// Rendering terrain to reflection RT
+	//tex_variable=pEffect->GetVariableByName("g_DepthTexture")->AsShaderResource();
+	//tex_variable->SetResource(shadowmap_resourceSRV);
 
-	//RenderTerrain( cam, pd3dImmediateContext );
+	RenderTerrain( cam, pd3dImmediateContext );
 
-	//// Setting up main rendertarget
+	// Setting up main rendertarget
 	//pd3dImmediateContext->RSSetViewports( 1, &main_Viewport );
 	//pd3dImmediateContext->OMSetRenderTargets( 1, &m_pMain_color_resourceRTV, m_pMain_depth_resourceDSV );
 	//pd3dImmediateContext->ClearRenderTargetView( m_pMain_color_resourceRTV, ClearColor );
 	//pd3dImmediateContext->ClearDepthStencilView( m_pMain_depth_resourceDSV, D3D11_CLEAR_DEPTH, 1.0, 0 );
-	//SetupNormalView( pd3dImmediateContext, cam );
 
-	//// Rendering terrain to main buffer
-	////tex_variable=pEffect->GetVariableByName("g_DepthTexture")->AsShaderResource();
-	////tex_variable->SetResource(shadowmap_resourceSRV);
+	pd3dImmediateContext->OMSetRenderTargets( 1, &colorBuffer, backBuffer );
+	pd3dImmediateContext->RSSetViewports( 1, &currentViewport );
 
-	////tex_variable=pEffect->GetVariableByName("g_WaterNormalMapTexture")->AsShaderResource();
-	////tex_variable->SetResource(water_normalmap_resourceSRV);
 
-	//RenderTerrain( cam, pd3dImmediateContext );
+	SetupNormalView( pd3dImmediateContext, cam );
 
-	//// TODO
+	// Rendering terrain to main buffer
+	//tex_variable=pEffect->GetVariableByName("g_DepthTexture")->AsShaderResource();
+	//tex_variable->SetResource(shadowmap_resourceSRV);
 
-	//// Getting back to rendering to main buffer
+	//tex_variable=pEffect->GetVariableByName("g_WaterNormalMapTexture")->AsShaderResource();
+	//tex_variable->SetResource(water_normalmap_resourceSRV);
+
+	RenderTerrain( cam, pd3dImmediateContext );
+
+	// TODO
+
+	// Getting back to rendering to main buffer
 	//pd3dImmediateContext->RSSetViewports( 1, &main_Viewport );
 	//pd3dImmediateContext->OMSetRenderTargets( 1, &m_pMain_color_resourceRTV, m_pMain_depth_resourceDSV );
 
-	//// Rendering water surface to main buffer
-	//RenderWater( cam, pd3dImmediateContext );
+	// Rendering water surface to main buffer
+	RenderWater( cam, pd3dImmediateContext );
 
-	//// Rendering sky to main buffer
-	//sb->RenderSkyBox( &mWorldViewProjection, pd3dImmediateContext );
+	// Rendering sky to main buffer
+	sb->RenderSkyBox( &XMMatrixTranspose( m_CBallInOne.mModelViewProjectionMatrix ), pd3dImmediateContext );
 
-	////restoring scene color buffer and back buffer
+	//restoring scene color buffer and back buffer
 	//pd3dImmediateContext->OMSetRenderTargets( 1, &colorBuffer, backBuffer );
-	//   pd3dImmediateContext->RSSetViewports( 1, &currentViewport );
+	//pd3dImmediateContext->RSSetViewports( 1, &currentViewport );
 
 	////resolving main buffer 
 	//pd3dImmediateContext->ResolveSubresource( m_pMain_color_resource_resolved, 0, m_pMain_color_resource, 0, DXGI_FORMAT_R8G8B8A8_UNORM );
@@ -1314,25 +1320,16 @@ void Terrain::Render( CModelViewerCamera *cam, ID3D11DeviceContext* pd3dImmediat
 	//pd3dImmediateContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
 	//pd3dImmediateContext->VSSetShader( m_pRenderMainVS, NULL, 0 );
 	//pd3dImmediateContext->PSSetShader( m_pRenderMainPS, NULL, 0 );
-	//pd3dImmediateContext->PSSetShaderResources( 14, 1, &m_pMain_color_resource_resolvedSRV /*m_pReflection_color_resourceSRV*/ );
+	//pd3dImmediateContext->PSSetShaderResources( 14, 1, &/*m_pMain_color_resource_resolvedSRV*/ m_pReflection_color_resourceSRV );
 	//pd3dImmediateContext->Draw( 4, 0 );
-	////pEffect->GetTechniqueByName("MainToBackBuffer")->GetPassByIndex(0)->Apply(0, pContext);
-	////stride=sizeof(float)*6;
-	////pContext->IASetVertexBuffers(0,1,&heightfield_vertexbuffer,&stride,&offset);
-	////pContext->Draw(4, 0); // just need to pass 4 vertices to shader
-
-	////tex_variable=pEffect->GetVariableByName("g_MainTexture")->AsShaderResource();
-	////tex_variable->SetResource(NULL);
-
-	////pEffect->GetTechniqueByName("Default")->GetPassByIndex(0)->Apply(0, pContext);
-	//// TODO need another shader for this stage
-
-	//   SAFE_RELEASE ( colorBuffer );
-	//   SAFE_RELEASE ( backBuffer );
 
 
+	SAFE_RELEASE ( colorBuffer );
+	SAFE_RELEASE ( backBuffer );
 
-	RenderTestStuff( cam, pd3dImmediateContext, sb, fTime );
+
+	// Test Code
+	//RenderTestStuff( cam, pd3dImmediateContext, sb, fTime );
 }
 
 void Terrain::RenderTerrain( CModelViewerCamera *cam, ID3D11DeviceContext* pd3dImmediateContext )
@@ -1381,6 +1378,7 @@ void Terrain::RenderWater( CModelViewerCamera *cam, ID3D11DeviceContext* pd3dImm
 	pd3dImmediateContext->VSSetShader( m_pRenderWaterVS, NULL, 0 );
 	pd3dImmediateContext->VSSetConstantBuffers( 0, 1, &m_pCBallInOne );
 	pd3dImmediateContext->PSSetShader( m_pRenderWaterPS, NULL, 0 );
+	pd3dImmediateContext->PSSetConstantBuffers( 0, 1, &m_pCBallInOne );
 	pd3dImmediateContext->PSSetShaderResources( 0, 1, &m_pLayerdef_textureSRV );
 	pd3dImmediateContext->PSSetShaderResources( 12, 1, &m_pReflection_color_resourceSRV );
 
@@ -1408,6 +1406,7 @@ HRESULT Terrain::LoadTextures()
 	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 	sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	//sampDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
 	sampDesc.MinLOD = 0;
 	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	V_RETURN( m_pDevice->CreateSamplerState( &sampDesc, &m_pGeneralTexSS ) );
@@ -1434,42 +1433,54 @@ void Terrain::SetupReflectionView( ID3D11DeviceContext* pd3dImmediateContext, CM
 
 	XMStoreFloat3( &EyePoint, cam->GetEyePt() );
 	XMStoreFloat3( &LookAtPoint, cam->GetLookAtPt() );
-	EyePoint.y = -1.0f * EyePoint.y + 2.0f;
-	LookAtPoint.y = -1.0f * LookAtPoint.y + 2.0f;
+	EyePoint.y = -1.0f * EyePoint.y + 2.0f * m_CBallInOne.fWaterDepth;
+	LookAtPoint.y = -1.0f * LookAtPoint.y + 2.0f * m_CBallInOne.fWaterDepth;
 
 	XMMATRIX mView;
 	XMMATRIX mProj;
+	XMMATRIX mWorld;
 	XMMATRIX mViewProj;
 	XMMATRIX mViewProjInv;
 
-	XMMATRIX mWorld;
+	XMMATRIX mTranslationMatrix;
+	XMMATRIX mReflectionMatrix;
 	mView = cam->GetViewMatrix();
+	mProj = cam->GetProjMatrix();
 	mWorld = cam->GetWorldMatrix();
 
-	XMFLOAT4X4 tmp_mWorld;
-	XMStoreFloat4x4( &tmp_mWorld, mWorld );
+	// Setup reflection view
+	XMFLOAT4X4 reflectionViewMatrix;
+	XMStoreFloat4x4( &reflectionViewMatrix, mView );
 
-	tmp_mWorld._42 = -tmp_mWorld._42 - 2.0f;
+	reflectionViewMatrix._12 *= -1;
+	reflectionViewMatrix._21 *= -1;
+	reflectionViewMatrix._23 *= -1;
+	reflectionViewMatrix._32 *= -1;
+	reflectionViewMatrix._42 = -reflectionViewMatrix._42;
 
-	tmp_mWorld._21 *= -1.0f;
-	tmp_mWorld._23 *= -1.0f;
-	tmp_mWorld._32 *= -1.0f;
+	XMMATRIX translateMatrix = XMMatrixTranslation( 0, -m_CBallInOne.fWaterDepth * 2.0f, 0 );
+	XMStoreFloat4x4( &reflectionViewMatrix, XMMatrixMultiply( translateMatrix, XMLoadFloat4x4( &reflectionViewMatrix ) ) );
 
-	mWorld = XMLoadFloat4x4( &tmp_mWorld );
 
-	mView = XMMatrixInverse( NULL, mWorld );
-	mProj = XMMatrixPerspectiveFovLH( camera_fov * XM_PI / 360.0f, aspectRatio, scene_z_near,scene_z_far );
-	mViewProj = mView * mProj;
+	// Setup the position of the camera in the world.
+	// For planar reflection invert the Y position of the camera.
+	mViewProj = XMMatrixMultiply( mWorld, XMLoadFloat4x4( &reflectionViewMatrix ) );
+	mViewProj = XMMatrixMultiply( mViewProj, mProj );
+	m_CBallInOne.mReflectionMatrix = XMMatrixTranspose( XMLoadFloat4x4( &reflectionViewMatrix ) );
 	mViewProjInv = XMMatrixInverse( NULL, mViewProj );
 
 	XMVECTOR direction = XMVectorSubtract( XMLoadFloat3( &LookAtPoint ), XMLoadFloat3( &EyePoint ) );
 	XMVECTOR normalized_direction = XMVector3Normalize( direction );
 
+	// Setup Clip Plane
+	XMFLOAT4 clipPlane = XMFLOAT4( 0.0f, 1.0f, 0.0f, -m_CBallInOne.fWaterDepth - 0.05f );
+
 	m_CBallInOne.mModelViewProjectionMatrix = XMMatrixTranspose( mViewProj );
-	m_CBallInOne.mCameraPosition = XMLoadFloat3( &EyePoint );
-	m_CBallInOne.mCameraDirection = normalized_direction;
+	m_CBallInOne.mCameraPosition = EyePoint;
+	XMStoreFloat3( &m_CBallInOne.mCameraDirection, normalized_direction );
 	m_CBallInOne.fHalfSpaceCullSign = 1.0f;
 	m_CBallInOne.fHalfSpaceCullPosition = -0.6;
+	m_CBallInOne.fClipPlane = clipPlane;
 	pd3dImmediateContext->UpdateSubresource( m_pCBallInOne, 0, NULL, &m_CBallInOne, 0, 0 );
 }
 
@@ -1516,8 +1527,8 @@ void Terrain::SetupLightView( ID3D11DeviceContext* pd3dImmediateContext, CModelV
 	m_CBallInOne.mModelViewProjectionMatrix = XMMatrixTranspose( mViewProj );
 	m_CBallInOne.mLightModelViewProjectionMatrix = XMMatrixTranspose( mViewProj );
 	m_CBallInOne.mLightModelViewProjectionMatrixInv = XMMatrixTranspose( mViewProjInv );
-	m_CBallInOne.mCameraPosition = XMLoadFloat3( &cameraPosition );
-	m_CBallInOne.mCameraDirection = normalized_direction;
+	m_CBallInOne.mCameraPosition = EyePoint;
+	XMStoreFloat3( &m_CBallInOne.mCameraDirection, normalized_direction );
 	m_CBallInOne.fHalfSpaceCullSign = 1.0f;
 	m_CBallInOne.fHalfSpaceCullPosition = terrain_minheight * 2;
 	pd3dImmediateContext->UpdateSubresource( m_pCBallInOne, 0, NULL, &m_CBallInOne, 0, 0 );
@@ -1543,17 +1554,18 @@ void Terrain::SetupNormalView( ID3D11DeviceContext* pd3dImmediateContext, CModel
 	//pEffect->GetVariableByName("g_CameraPosition")->AsVector()->SetFloatVector(cameraPosition);
 	XMVECTOR direction = LookAtPoint - EyePoint;
 	XMVECTOR normalized_direction = XMVector3Normalize( direction );
-	//pEffect->GetVariableByName("g_CameraDirection")->AsVector()->SetFloatVector(normalized_direction);
-	//pEffect->GetVariableByName("g_HalfSpaceCullSign")->AsScalar()->SetFloat(1.0);
-	//pEffect->GetVariableByName("g_HalfSpaceCullPosition")->AsScalar()->SetFloat(terrain_minheight*2);
+
+	// Setup Clip Plane
+	XMFLOAT4 clipPlane = XMFLOAT4( 0.0f, 1.0f, 0.0f, 100 );
 
 	m_CBallInOne.mModelViewMatrix = XMMatrixTranspose( mView );
 	m_CBallInOne.mModelViewProjectionMatrix = XMMatrixTranspose( mViewProj );
 	m_CBallInOne.mModelViewProjectionMatrixInv = XMMatrixTranspose( mViewProjInv );
-	m_CBallInOne.mCameraPosition = cameraPosition;
-	m_CBallInOne.mCameraDirection = normalized_direction;
+	XMStoreFloat3( &m_CBallInOne.mCameraPosition, EyePoint );
+	XMStoreFloat3( &m_CBallInOne.mCameraDirection, normalized_direction );
 	m_CBallInOne.fHalfSpaceCullSign = 1.0f;
 	m_CBallInOne.fHalfSpaceCullPosition = terrain_minheight * 2;
+	m_CBallInOne.fClipPlane = clipPlane;
 	pd3dImmediateContext->UpdateSubresource( m_pCBallInOne, 0, NULL, &m_CBallInOne, 0, 0 );
 }
 
@@ -1744,7 +1756,6 @@ void Terrain::RenderTestStuff(  CModelViewerCamera *cam, ID3D11DeviceContext* pd
 	m_CBallInOneTest.mWorld = XMMatrixTranspose( world);
 	m_CBallInOneTest.mProjection = XMMatrixTranspose( proj );
 	//m_CBallInOne.mWaterTexcoordShift = XMFLOAT2( fTime * 1.5f, fTime * 0.75 );
-	//m_CBallInOne.fScreenSizeInv = XMFLOAT2( 1.0f / ( BackbufferWidth * main_buffer_size_multiplier ), 1.0f / ( BackbufferHeight * main_buffer_size_multiplier ) );
 
 	// Saving scene color buffer and back buffer to constants
 	pd3dImmediateContext->RSGetViewports( &cRT, &currentViewport );
@@ -1755,9 +1766,9 @@ void Terrain::RenderTestStuff(  CModelViewerCamera *cam, ID3D11DeviceContext* pd
 	//XMFLOAT4 clipPlane;
 	//clipPlane = XMFLOAT4( 0.0f, -1.0f, 0.0f, water_height + 0.1f );
 	//pd3dImmediateContext->RSSetViewports( 1, &refraction_Viewport );
-	//pd3dImmediateContext->OMSetRenderTargets( 1, &m_pRefraction_color_resourceRTV, m_pRefraction_depth_resourceDSV );
-	//pd3dImmediateContext->ClearRenderTargetView( m_pRefraction_color_resourceRTV, RefractionClearColor );
-	//pd3dImmediateContext->ClearDepthStencilView( m_pRefraction_depth_resourceDSV, D3D11_CLEAR_DEPTH, 1.0, 0 );
+	//pd3dImmediateContext->OMSetRenderTargets( 1, &m_pMain_color_resourceRTV, m_pMain_depth_resourceDSV );
+	//pd3dImmediateContext->ClearRenderTargetView( m_pMain_color_resourceRTV, RefractionClearColor );
+	//pd3dImmediateContext->ClearDepthStencilView( m_pMain_depth_resourceDSV, D3D11_CLEAR_DEPTH, 1.0, 0 );
 
 
 	/**********************************************
@@ -1770,53 +1781,23 @@ void Terrain::RenderTestStuff(  CModelViewerCamera *cam, ID3D11DeviceContext* pd
 	pd3dImmediateContext->ClearDepthStencilView( m_pReflection_depth_resourceDSV, D3D11_CLEAR_DEPTH, 1.0, 0 );
 
 	// Setup reflection view
-	XMFLOAT3 up, position, lookAt;
-	float radians;
-	
+	XMFLOAT4X4 reflectionViewMatrix;
+	XMStoreFloat4x4( &reflectionViewMatrix, view );
 
-	// Setup the vector that points upwards.
-	up.x = 0.0f;
-	up.y = 1.0f;
-	up.z = 0.0f;
+	reflectionViewMatrix._12 *= -1;
+	reflectionViewMatrix._21 *= -1;
+	reflectionViewMatrix._23 *= -1;
+	reflectionViewMatrix._32 *= -1;
+	reflectionViewMatrix._42 = -reflectionViewMatrix._42;
+
+	XMMATRIX translateMatrix = XMMatrixTranslation( 0, -water_height * 2.0f, 0 );
+	XMStoreFloat4x4( &reflectionViewMatrix, XMMatrixMultiply( translateMatrix, XMLoadFloat4x4( &reflectionViewMatrix ) ) );
+
 
 	// Setup the position of the camera in the world.
 	// For planar reflection invert the Y position of the camera.
-	XMStoreFloat3( &position, cam->GetEyePt() );
-	XMStoreFloat3( &lookAt, cam->GetLookAtPt() );
-
-	XMFLOAT3 CameraDir = XMFLOAT3( lookAt.x - position.x, lookAt.y - position.y, lookAt.z - position.z );
-	CameraDir.y = CameraDir.y * -1;
-	XMStoreFloat3( &CameraDir, XMVector3Normalize( XMLoadFloat3( &CameraDir ) ) );
-
-	position.x = position.x;
-	position.y = -position.y + ( water_height * 2.0f );
-	position.z = position.z;
-
-	// Calculate the rotation in radians.
-	radians = 0 * 0.0174532925f;
-
-	// Setup where the camera is looking.
-	XMStoreFloat3( &lookAt, cam->GetLookAtPt() );
-	lookAt.x = lookAt.x;
-	lookAt.y = -lookAt.y + ( water_height * 2.0f );
-	lookAt.z = lookAt.z;
-
-	//lookAt.x = sinf( radians ) + position.x;
-	//lookAt.y = position.y;
-	//lookAt.z = cosf( radians ) + position.z;
-
-	//lookAt.x = position.x + 2 * CameraDir.x;
-	//lookAt.y = position.y + 2 * CameraDir.y;
-	//lookAt.z = position.z + 2 * CameraDir.z;
-
-
-	// Create the view matrix from the three vectors.
-	XMMATRIX reflectionViewMatrix, mViewProj;
-	reflectionViewMatrix = XMMatrixLookAtLH( XMLoadFloat3( &position ), XMLoadFloat3( &lookAt ), XMLoadFloat3( &up ) );
-
-	world = cam->GetWorldMatrix();
-	proj  = cam->GetProjMatrix();
-	mViewProj = XMMatrixMultiply( world, reflectionViewMatrix );
+	XMMATRIX mViewProj;
+	mViewProj = XMMatrixMultiply( world, XMLoadFloat4x4( &reflectionViewMatrix ) );
 	mViewProj = XMMatrixMultiply( mViewProj, proj );
 
 	sb->RenderSkyBox( &mViewProj, pd3dImmediateContext );
@@ -1829,7 +1810,7 @@ void Terrain::RenderTestStuff(  CModelViewerCamera *cam, ID3D11DeviceContext* pd
 	* Render scene out
 	**********************************************/
 	// Update Constant buffer
-	m_CBallInOneTest.mRefelctionMatrix = /*reflectionViewMatrix*/ XMMatrixTranspose( reflectionViewMatrix );
+	m_CBallInOneTest.mRefelctionMatrix = /*reflectionViewMatrix*/ XMMatrixTranspose( XMLoadFloat4x4( &reflectionViewMatrix ) );
 	m_CBallInOneTest.fReflectRefractScale = 0.01;
 	pd3dImmediateContext->UpdateSubresource( m_pCBallInOne, 0, NULL, &m_CBallInOneTest, 0, 0 );
 

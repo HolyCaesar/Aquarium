@@ -3,7 +3,7 @@
 #include "SDKmisc.h"
 #include "DXUTgui.h"
 
-//#include "MultiTexturePresenter.h"
+#include "MultiTexturePresenter.h"
 //#include "SpinningFirework.h"
 //#include "GlowEffect.h"
 //#include "MotionBlurEffect.h"
